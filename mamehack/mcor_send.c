@@ -25,7 +25,8 @@ void mcor_send_init(const char *ip_address, int port){
 	}
 }
 
-void mcor_send_cleanup(){ close(mcor_sock);
+void mcor_send_cleanup(){ 
+	close(mcor_sock);
 }
 
 void mcor_send(const char *data, int length){
