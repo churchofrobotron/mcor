@@ -1,0 +1,7 @@
+
+This hacks the MAME source and is likely specific to robotron.
+
+Copy all of the *.c and *.h to $MAM_HOME/src/emu/ and recompile mame.
+Fire up the python UDP dumper on port 2084 and watch the data change when you die.
+
+OBVIOUS: This is still very preliminary.
