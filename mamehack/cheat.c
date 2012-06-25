@@ -2,6 +2,8 @@
 
     cheat.c
 
+	FORKED FOR MCOR
+
     MAME cheat system.
 
 ****************************************************************************
@@ -1116,8 +1118,8 @@ cheat_manager::cheat_manager(running_machine &machine)
 	reload();
 
 	// CHURCH OF ROBOTRON INIT
-	mame_printf_verbose("Loading THE MOBILE CHURCH OF ROBOTRON!\n");
-	mcor_init();
+	printf("Loading THE MOBILE CHURCH OF ROBOTRON!\n");
+	mcor_init(&m_symtable);	//yikes, lets spill our guts shall we?  these guys are pure.
 }
 
 
