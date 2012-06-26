@@ -3,6 +3,7 @@ var colors = ['rgb(255, 0, 255)', 'rgb(0, 0, 255)', 'rgb(0, 255, 0)', 'rgb(255, 
 
 var currentLeader = 0;
 var leaders = [];
+var leaderboardLastModified = '';
 
 function pageInit(){
 	fetchAndUpdateLeaderboard();	//bootstrap initial state
@@ -12,11 +13,17 @@ function pageInit(){
 }
 
 function fetchAndUpdateLeaderboard(){
-	$.ajax({ url: './data/leaderboard.txt', 'ifModified': true})
+	jqxhr = $.ajax({ url: './data/leaderboard.txt', 'ifModified': true})
 		.done(function(msg){
 			if(msg){
+				//console.log("%s", jqxhr.getResponseHeader('Last-Modified'));
+				lastModified = jqxhr.getResponseHeader('Last-Modified');
+				if(leaderboardLastModified == lastModified){
+					return;
+				}
 				parseDataFile(msg);
 				updateDisplay();
+				leaderboardLastModified = lastModified;
 			}
 		});
 	
