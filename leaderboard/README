@@ -1,4 +1,15 @@
 
+How to use this?
+
+1) Run the simple embedded python web server:
+   $ python leaderboard-server.py
+
+2) Point a browser at http://localhost:12084/leaderboard.html
+
+3) Change the data/leaderboard.txt file and place images in data/ subdir.
+
+----------------------------------------------------------------------------------
+
 image is expected to be 500x400 currently....we can change this.
 
 imagemagick can simply do the image stuff:
