@@ -2,7 +2,7 @@
 This hacks the MAME source and is likely specific to robotron.
 I've been working against version 0146s of MAME and have compiled to 64-bit.
 
-Copy all of the *.c and *.h to $MAM_HOME/src/emu/ and recompile mame.
+Copy all of the *.c and *.h and *.mak to $MAM_HOME/src/emu/ and recompile mame.
 Fire up the python UDP dumper on port 2084 and watch the data change when you die.
 
 OBVIOUS: This is still very preliminary.
