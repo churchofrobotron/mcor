@@ -3,12 +3,14 @@ import urlparse
 import time
 import sys
 
+DEFAULT_PORT = 12084
+
 if __name__ == '__main__':
 	from BaseHTTPServer import HTTPServer
 	if sys.argv[1:]:
 		port = int(sys.argv[1])
 	else:
-		port = 8000
+		port = DEFAULT_PORT
 
 	# Only bind on loopback.  This requires the leaderboard server to be running 
 	# on the same machine physically connected to the projector.
