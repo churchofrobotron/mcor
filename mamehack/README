@@ -6,3 +6,7 @@ Copy all of the *.c and *.h and *.mak to $MAM_HOME/src/emu/ and recompile mame.
 Fire up the python UDP dumper on port 2084 and watch the data change when you die.
 
 OBVIOUS: This is still very preliminary.
+
+PROBLEM: What was formerly believe to be the death byte is also triggered
+when humans die.  We're still looking for a better approach to reliably detecting
+death.
