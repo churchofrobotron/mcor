@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="mcor-logo4.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="330.28636"
+     inkscape:cy="524.96915"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="976"
+     inkscape:window-x="-3"
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="background"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <flowRoot
+       transform="matrix(-3.0515779,0,0,-3.7185063,598.88785,1477.7884)"
+       style="font-size:140px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0.00296861px;fill:#d40000;fill-opacity:1;stroke:#000000;stroke-width:1.18744504;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Droid Arabic Naskh;-inkscape-font-specification:Droid Arabic Naskh Bold"
+       id="flowRoot4003"
+       xml:space="preserve"><flowRegion
+         id="flowRegion4005"><rect
+           style="font-size:140px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;word-spacing:0.00296861px;fill:#d40000;stroke:#000000;stroke-width:1.18744504;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Droid Arabic Naskh;-inkscape-font-specification:Droid Arabic Naskh Bold"
+           y="182.36218"
+           x="92.85714"
+           height="434.28571"
+           width="422.85715"
+           id="rect4007" /></flowRegion><flowPara
+         id="flowPara4009">R</flowPara></flowRoot>    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4014"
+       style="font-size:140px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0.00296861px;fill:#d40000;fill-opacity:1;stroke:#000000;stroke-width:1.18744504;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Droid Arabic Naskh;-inkscape-font-specification:Droid Arabic Naskh Bold"
+       transform="matrix(3.0515779,0,0,-3.7185063,147.62288,1476.3598)"><flowRegion
+         id="flowRegion4016"><rect
+           id="rect4018"
+           width="422.85715"
+           height="434.28571"
+           x="92.85714"
+           y="182.36218"
+           style="font-size:140px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;word-spacing:0.00296861px;fill:#d40000;stroke:#000000;stroke-width:1.18744504;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Droid Arabic Naskh;-inkscape-font-specification:Droid Arabic Naskh Bold" /></flowRegion><flowPara
+         id="flowPara4020">R</flowPara></flowRoot>  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="crows">
+    <path
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 350,826.64791 -1.42857,-644.28572 -79.28572,0 0.71429,-52.85715 75.71428,0 0,-70 52.85715,-1.428572 0,70.000002 71.42857,0 0.71428,52.14287 -73.57143,0.71428 8.57143,645.71429 z"
+       id="path4012"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccccccc" />
+  </g>
+</svg>
