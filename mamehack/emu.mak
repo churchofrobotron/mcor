@@ -49,8 +49,6 @@ EMUOBJS = \
 	$(EMUOBJ)/attotime.o \
 	$(EMUOBJ)/audit.o \
 	$(EMUOBJ)/cheat.o \
-	$(EMUOBJ)/mcor.o \
-	$(EMUOBJ)/mcor_send.o \
 	$(EMUOBJ)/clifront.o \
 	$(EMUOBJ)/config.o \
 	$(EMUOBJ)/crsshair.o \
@@ -126,7 +124,8 @@ EMUOBJS = \
 	$(EMUOBJ)/debugint/debugint.o \
 	$(EMUOBJ)/profiler.o \
 	$(OSDOBJ)/osdepend.o \
-	$(OSDOBJ)/osdnet.o
+	$(OSDOBJ)/osdnet.o \
+   $(EMUOBJ)/mcor_send.o
 
 EMUSOUNDOBJS = \
 	$(EMUOBJ)/sound/filter.o \

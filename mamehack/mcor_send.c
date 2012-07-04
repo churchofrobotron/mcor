@@ -25,7 +25,7 @@ void mcor_send_init(const char *ip_address, int port){
 	}
 }
 
-void mcor_send_cleanup(){ 
+void mcor_send_cleanup(){
 	close(mcor_sock);
 }
 
@@ -36,4 +36,17 @@ void mcor_send(const char *data, int length){
 		perror("sendto() failed!");
 		exit(1);
 	}
+}
+
+void execute_mcor_init(running_machine &machine, int ref, int params, const char **param)
+{
+   mcor_send_init(MCOR_SERVER, MCOR_PORT);
+}
+
+void execute_mcor_send(running_machine &machine, int ref, int params, const char **param)
+{
+   if (params <= 0)
+      return;
+
+   mcor_send(param[0], strlen(param[0]));
 }

@@ -27,7 +27,7 @@ def main(argv=None):
 	print "Waiting for data..."
 	while True:
 		result = select.select([s],[],[])
-		msg = result[0][0].recv(10) # 10 bytes 
+		msg = result[0][0].recv(20) # 10 bytes
 		print "%s | %s" %(dump_hex(msg), msg)
 
 if __name__ == "__main__":

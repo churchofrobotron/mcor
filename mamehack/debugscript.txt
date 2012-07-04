@@ -1,5 +1,5 @@
-trace /tmp/mame.trace
-bp 310d,1,{tracelog "Player death\n"; g}
-bp 3112,1,{tracelog "Game over\n"; g}
-bp 3130,1,{tracelog "Still trying\n"; g}
-go
+mcor_init
+mcor_send "Game boot"
+bp 310d,1,{mcor_send "Player death"; g}
+bp 3112,1,{mcor_send "Game over"; g}
+bp 3130,1,{mcor_send "Still trying"; g}
