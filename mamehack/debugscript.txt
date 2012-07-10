@@ -2,7 +2,7 @@ mcor_init
 mcor_send "Game boot"
 bp 276c,1,{mcor_send "Game start"; g}
 wp bded,1,w,1,{mcor_send "WaveNum:%x",b@bded; g}
-bp 310d,1,{mcor_send "Player death"; g}
+bp 30fe,1,{mcor_send "Player death"; g}
 bp 3112,1,{mcor_send "Game over"; g}
 bp 3130,1,{mcor_send "Still trying"; g}
 bp e814,1,{mcor_dumpscores; mcor_send "NewScores,Latest,%x %x %x,%x",b@b3ea,b@b3eb,b@b3ec,d@bde4; g}
