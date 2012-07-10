@@ -13,5 +13,6 @@ void mcor_send_init(const char *ip_address, int port);
 
 void execute_mcor_init(running_machine &machine, int ref, int params, const char **param);
 void execute_mcor_send(running_machine &machine, int ref, int params, const char **param);
+void execute_mcor_dumpscores(running_machine &machine, int ref, int params, const char **param);
 
 #endif

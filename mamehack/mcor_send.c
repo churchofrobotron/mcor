@@ -7,6 +7,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "mcor_send.h"
+#include "machine/nvram.h"
+#include "debug/debugcon.h"
+#include "debug/debugcmd.h"
+
+int mini_printf(running_machine &machine, char *buffer, const char *format, int params, UINT64 *param);
+//int debug_command_parameter_number(running_machine &machine, const char *param, UINT64 *result);
 
 int mcor_sock;
 struct sockaddr_in server_addr;
@@ -45,8 +51,23 @@ void execute_mcor_init(running_machine &machine, int ref, int params, const char
 
 void execute_mcor_send(running_machine &machine, int ref, int params, const char **param)
 {
-   if (params <= 0)
-      return;
+	UINT64 values[MAX_COMMAND_PARAMS];
+	char buffer[1024];
+	int i;
 
-   mcor_send(param[0], strlen(param[0]));
+	/* validate the other parameters */
+	for (i = 1; i < params; i++)
+		if (!debug_command_parameter_number(machine, param[i], &values[i]))
+			return;
+
+	/* then do a printf */
+	if (mini_printf(machine, buffer, param[0], params - 1, &values[1]))
+   {
+      mcor_send(buffer, strlen(buffer));
+   }
+}
+
+void execute_mcor_dumpscores(running_machine& machine, int ref, int params, const char** param)
+{
+   nvram_save(machine);
 }
