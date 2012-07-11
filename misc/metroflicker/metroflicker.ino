@@ -1,11 +1,12 @@
 #include <Metro.h>
 #include <Queue.h>
 
-const int len = 3;
-Metro metros[len] = {Metro(10, true), Metro(10, true), Metro(10, true)};
-Queue queues[len] = {Queue(), Queue(), Queue()};
-int leds[len] = {12, 10, LED_BUILTIN};
-int states[len] = {LOW, LOW, LOW};
+const int len = 4;
+Metro metros[len] = {
+  Metro(10, true), Metro(10, true), Metro(10, true), Metro(10, true)};
+Queue queues[len] = {Queue(), Queue(), Queue(), Queue()};
+int leds[len] = {12, 10, 9, 8};
+int states[len] = {LOW, LOW, LOW, LOW};
 
 float msbase = 100;
 float lenbase = 1;
@@ -13,8 +14,8 @@ float gapbase = 10000;
 
 void loadQueue(Queue *queue, int ms, int len, int gap)
 {
-  len = random(1, min(len, 10));
-  ms = min(ms, 2000);
+  len = random(1, min(len, 6));
+  ms = min(ms, 3000);
   gap = max(100, random(gap / 2, gap));
   // push delay between group
   queue->push(0);
