@@ -1,6 +1,7 @@
 Notes on the way to an actual script... 
 
-I've been testing in Ubuntu 10.10 (powerpc), using gstreamer (including gstreamer-plugins-good) and ffmpeg. This hardware is not optimal. :) See #3 below, for one thing.
+I've been testing in Ubuntu 10.10 (powerpc), using gstreamer (including gstreamer-plugins-good) and ffmpeg. 
+This hardware is not optimal. :) See #3 below, for one thing.
 
 =================================================
 1. These steps are intended to be run in a new directory, as we'll be deleting files later.
@@ -12,7 +13,9 @@ I've been testing in Ubuntu 10.10 (powerpc), using gstreamer (including gstreame
 	'image/jpeg, width=(int)320, height=(int)240, framerate=(fraction)5/1, pixel-aspect-ratio=(fraction)1/1' ! \
 	 multifilesink location=output-%05d.jpeg
 
-3. That will keep capturing until interrupted with ctrl-c. Not ideal, but on this machine I can't update to the version of gstreamer that lets you specify the "max-files" property on multifilesink. I think that we could (maybe?) do some kind of ring buffer as you mentioned, Jason, if we could specify that. Though that would complicate step #4 a bit.
+3. That will keep capturing until interrupted with ctrl-c. Not ideal, but on this machine I can't update to the version 
+of gstreamer that lets you specify the "max-files" property on multifilesink. I think that we could (maybe?) do some 
+kind of ring buffer as you mentioned, Jason, if we could specify that. Though that would complicate step #4 a bit.
 
 4. After interrupting, remove all but the most recent 15 (or whatever number you like) images:
 	(ls -t|head -n 15;ls)|sort|uniq -u|xargs rm
