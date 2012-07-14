@@ -1,0 +1,28 @@
+Notes on the way to an actual script... 
+
+I've been testing in Ubuntu 10.10 (powerpc), using gstreamer (including gstreamer-plugins-good) and ffmpeg. This hardware is not optimal. :) See #3 below, for one thing.
+
+=================================================
+1. These steps are intended to be run in a new directory, as we'll be deleting files later.
+
+2. This pipeline launches a continuous capture of jpgs from a webcam at a rate of 5 frames/second:
+	gst-launch -vt v4l2src ! \
+	'video/x-raw-yuv' ! \
+	jpegenc ! \
+	'image/jpeg, width=(int)320, height=(int)240, framerate=(fraction)5/1, pixel-aspect-ratio=(fraction)1/1' ! \
+	 multifilesink location=output-%05d.jpeg
+
+3. That will keep capturing until interrupted with ctrl-c. Not ideal, but on this machine I can't update to the version of gstreamer that lets you specify the "max-files" property on multifilesink. I think that we could (maybe?) do some kind of ring buffer as you mentioned, Jason, if we could specify that. Though that would complicate step #4 a bit.
+
+4. After interrupting, remove all but the most recent 15 (or whatever number you like) images:
+	(ls -t|head -n 15;ls)|sort|uniq -u|xargs rm
+
+[5. Fun image manipulation with imagemagick goes here]
+
+6. Rename them because ffmpeg won't accept gaps in sequence.
+	i=0; for file in *.jpeg; do mv "$file" $(printf "image_%0.3d.jpeg" $i); i=$((i+1)); done
+ 
+7. Stitch them together into an mp4 (animated gif can be done, but takes forever to process):
+	ffmpeg -r 10 -b 1800kb -i image_%03d.jpeg deathface.mp4
+
+
