@@ -14,7 +14,11 @@ def find_devices():
    for dev in serial_devices:
       dev.close()
    serial_devices = []
-   serial_devices.append(serial.Serial("/dev/tty.usbmodem12341"))
+   try:
+      dev_name = "/dev/tty.usbmodem12341"
+      serial_devices.append(serial.Serial(dev_name))
+   except:
+      print "Unable to open " + dev_name
 
 def send_command(c):
    for dev in serial_devices:
@@ -46,12 +50,34 @@ def get_score(values, offset):
     b = b + bcd_byte(values[offset+3], 1)
     return b
 
+def csv_it(values):
+    res = ""
+    for i in values:
+        res = res + str(i) + ", "
+    res = res[:len(res)-2]
+    return res
+
+def scoreboard_line(f, initials, score):
+   if (len(initials.strip()) > 0):
+      f.write(csv_it([initials, score, "deathface.png"])+"\n")
+
+def parse_hex_initials(inits):
+   letters = inits.split(" ")
+   res = ""
+   for i in letters:
+      if (i != "3A"):
+         res = res + chr(int("0x" + i, 0))
+      else:
+         res = res + " "
+   return res
+
 def parse_scoreboard(msg):
     # TODO: msg contains the initials and score of the latest player, rename last_death.gif to <initials>_<score>.gif
     # This may take a little more thought, we may need to avoid collisions of people with the same initials and score repeating?  Maybe we don't
     # care though, it's nice and stateless this way.
 
     f = open("/Users/bzztbomb/projects/churchOfRobotron/mame_146/nvram/robotron/nvram", "r")
+    leaderboard = open("leaderboard/data/leaderboard_new.txt", "w")
     # Combine nibbles in values array
     values = []
     byte = f.read(2)
@@ -60,19 +86,21 @@ def parse_scoreboard(msg):
         values.append(((b[0] & 0xF) << 4) | (b[1] & 0xF))
         byte = f.read(2)
 
-    # TODO: Spit out a scores.txt that contains csv of initials, score, and <initials>_<score>.gif
+    # Spit out the most recent score first
+    items = msg.split(",")
+    scoreboard_line(leaderboard, parse_hex_initials(items[2]), items[3])
 
     # GC is stored a bit funny because you can optionally enter a 20 digit initial
-    print get_initials(values, 0x99)
-    print get_score(values, 0xB0)
+    scoreboard_line(leaderboard, get_initials(values, 0x99), get_score(values, 0xB0))
 
     # Get rest of scores
     offset = 0xB4
     while (offset < 0x1FD):
-        print get_initials(values, offset)
-        print get_score(values, offset+3)
-        offset = offset + 7
+       scoreboard_line(leaderboard, get_initials(values, offset), get_score(values, offset+3))
+       offset = offset + 7
+    leaderboard.close()
     f.close()
+    print "Scoreboard written."
 
 # We should save each death face to last_death.gif
 def save_player_face():
@@ -81,6 +109,8 @@ def save_player_face():
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 def main(argv=None):
+
+   parse_scoreboard("NewScores,Latest,41 3A 3A,18900")
 
    global last_time
    # TODO: Find devices during runtime?
