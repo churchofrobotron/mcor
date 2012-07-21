@@ -1,7 +1,27 @@
 import sys
 import select
 import socket
+import serial
+import random
+import time
 from struct import *
+
+serial_devices = []
+last_time = time.time()
+
+def find_devices():
+   global serial_devices
+   for dev in serial_devices:
+      dev.close()
+   serial_devices = []
+   serial_devices.append(serial.Serial("/dev/tty.usbmodem12341"))
+
+def send_command(c):
+   for dev in serial_devices:
+      dev.write(c)
+
+def send_laser(num):
+   send_command("LAS1:" + "{0:x}\n".format(num))
 
 def usage():
 	print "Usage:"
@@ -62,6 +82,10 @@ dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 def main(argv=None):
 
+   global last_time
+   # TODO: Find devices during runtime?
+   find_devices()
+
    if(argv is None):
       argv = sys.argv
 
@@ -80,18 +104,26 @@ def main(argv=None):
 
    print "Waiting for data..."
    while True:
-      result = select.select([s],[],[])
-      msg = result[0][0].recv(80) # 10 bytes
-      print "%s | %s" %(dump_hex(msg), msg)
+      if (gamerunning):
+         if (time.time() - last_time > 0.5):
+            send_laser(random.randint(1,511));
+            last_time = time.time()
+      else:
+         send_laser(0)
 
-      if (msg.startswith("Game start")):
-          gamerunning = True
-      if (msg.startswith("Game over")):
-          gamerunning = False
-      if (msg.startswith("Player death")):
-          save_player_face()
-      if (msg.startswith("NewScores")):
-          parse_scoreboard(msg)
+      result = select.select([s],[],[],0.001)
+      if (len(result[0]) > 0):
+         msg = result[0][0].recv(80) # 10 bytes
+         print "%s | %s" %(dump_hex(msg), msg)
+
+         if (msg.startswith("Game start")):
+            gamerunning = True
+         if (msg.startswith("Game over")):
+            gamerunning = False
+         if (msg.startswith("Player death")):
+            save_player_face()
+         if (msg.startswith("NewScores")):
+            parse_scoreboard(msg)
 
 if __name__ == "__main__":
    sys.exit(main())
