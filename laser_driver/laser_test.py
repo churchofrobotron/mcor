@@ -9,7 +9,7 @@ ser=serial.Serial(laser_dev)
 
 #just do some random stuff
 while True:
-  ser.write(laser_prefix+"{:x}\n".format(random.randint(1,511)))
+  ser.write(laser_prefix+"{0:x}\n".format(random.randint(1,511)))
   time.sleep(0.1)
 
 
