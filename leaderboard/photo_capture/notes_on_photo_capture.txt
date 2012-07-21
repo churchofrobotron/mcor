@@ -28,4 +28,7 @@ kind of ring buffer as you mentioned, Jason, if we could specify that. Though th
 7. Stitch them together into an mp4 (animated gif can be done, but takes forever to process):
 	ffmpeg -r 10 -b 1800kb -i image_%03d.jpeg deathface.mp4
 
+But here's the ImageMagick animated gif command if anyone wants to try it:
+	convert -delay 10 -loop 0 *.jpeg deathface.gif
+
 
