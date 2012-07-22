@@ -1,3 +1,4 @@
+# Church of Robotron Event Dispatcher
 import sys
 import select
 import socket
@@ -7,10 +8,15 @@ import time
 from struct import *
 import subprocess
 import os
+import shutil
+
+# CONFIG
+scores_extension = ".mp4"
 
 serial_devices = []
 last_time = time.time()
 
+# TODO: Look at /dev/tty.* and try to open them
 def find_devices():
    global serial_devices
    for dev in serial_devices:
@@ -61,7 +67,7 @@ def csv_it(values):
 
 def scoreboard_line(f, initials, score):
    if (len(initials.strip()) > 0):
-      f.write(csv_it([initials, score, "deathface.png"])+"\n")
+      f.write(csv_it([initials, score, initials.strip() + "_" + str(score) + scores_extension])+"\n")
 
 def parse_hex_initials(inits):
    letters = inits.split(" ")
@@ -73,11 +79,9 @@ def parse_hex_initials(inits):
          res = res + " "
    return res
 
+# TODO: Save old versions of scoreboard
 def parse_scoreboard(msg):
     # TODO: msg contains the initials and score of the latest player, rename last_death.gif to <initials>_<score>.gif
-    # This may take a little more thought, we may need to avoid collisions of people with the same initials and score repeating?  Maybe we don't
-    # care though, it's nice and stateless this way.
-
     f = open("/Users/bzztbomb/projects/churchOfRobotron/mame_146/nvram/robotron/nvram", "r")
     leaderboard = open("leaderboard/data/leaderboard.txt", "w")
     # Combine nibbles in values array
@@ -90,7 +94,10 @@ def parse_scoreboard(msg):
 
     # Spit out the most recent score first
     items = msg.split(",")
-    scoreboard_line(leaderboard, parse_hex_initials(items[2]), items[3])
+    recent_initials = parse_hex_initials(items[2])
+    scoreboard_line(leaderboard, recent_initials, items[3])
+
+    shutil.move("leaderboard/photo_capture/deathface" + scores_extension, "leaderboard/data/" + recent_initials.strip() + "_" + str(items[3]) + scores_extension)
 
     # GC is stored a bit funny because you can optionally enter a 20 digit initial
     scoreboard_line(leaderboard, get_initials(values, 0x99), get_score(values, 0xB0))
