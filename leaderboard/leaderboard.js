@@ -18,7 +18,7 @@ function fetchAndUpdateLeaderboard(){
 			if(msg){
 				//console.log("%s", jqxhr.getResponseHeader('Last-Modified'));
 				lastModified = jqxhr.getResponseHeader('Last-Modified');
-				if(leaderboardLastModified == lastModified){
+				 if((leaderboardLastModified == lastModified) || (lastModified == null)){
 					return;
 				}
 				parseDataFile(msg);
@@ -26,7 +26,7 @@ function fetchAndUpdateLeaderboard(){
 				leaderboardLastModified = lastModified;
 			}
 		});
-	
+
 }
 
 function updateDisplay(){
@@ -37,7 +37,7 @@ function updateDisplay(){
 			content = leaders[i]['initials'] + ' ' + leaders[i]['score'];
 		}
 		else{
-			content = '___ _______';	
+			content = '___ _______';
 		}
 		$('#slot' + (i+1)).html('' + (i+1) + ') ' + content);
 	}
@@ -106,5 +106,5 @@ function nextColor(current){
 			return colors[nextIndex];
 		}
 	}
-	return 'nathan!';
+	 return colors[0];
 }

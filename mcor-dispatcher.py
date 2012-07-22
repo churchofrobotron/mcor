@@ -5,6 +5,8 @@ import serial
 import random
 import time
 from struct import *
+import subprocess
+import os
 
 serial_devices = []
 last_time = time.time()
@@ -77,7 +79,7 @@ def parse_scoreboard(msg):
     # care though, it's nice and stateless this way.
 
     f = open("/Users/bzztbomb/projects/churchOfRobotron/mame_146/nvram/robotron/nvram", "r")
-    leaderboard = open("leaderboard/data/leaderboard_new.txt", "w")
+    leaderboard = open("leaderboard/data/leaderboard.txt", "w")
     # Combine nibbles in values array
     values = []
     byte = f.read(2)
@@ -104,13 +106,15 @@ def parse_scoreboard(msg):
 
 # We should save each death face to last_death.gif
 def save_player_face():
-    pass
+   cwd = os.getcwd()
+   os.chdir("leaderboard/photo_capture")
+   subprocess.call(['/bin/sh', 'make-deathface.sh'])
+   os.chdir(cwd)
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 def main(argv=None):
-
-   parse_scoreboard("NewScores,Latest,41 3A 3A,18900")
+   save_player_face()
 
    global last_time
    # TODO: Find devices during runtime?
