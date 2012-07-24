@@ -1,9 +1,6 @@
-/* USB to Serial - Teensy becomes a USB to Serial converter
-   http://dorkbotpdx.org/blog/paul/teensy_as_benito_at_57600_baud
-
-   You must select Serial from the "Tools > USB Type" menu
-
-   This example code is in the public domain.
+/*
+   Example of getting commands over USB serial.
+   Must select Serial from the "Tools > USB Type" menu.
 */
 
 #define MY_TYPE "START"
@@ -56,9 +53,11 @@ int parseCommand(const String &cmd)
   return mask;
 }
 
+// must be outside of function, http://arduino.cc/forum/index.php?topic=73177.0
+static String command = "";
+
 String getCommand()
 {
-  String command = "";
   char c;
   while (Serial.available()) {
     c = Serial.read();
