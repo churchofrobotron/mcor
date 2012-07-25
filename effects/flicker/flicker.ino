@@ -3,23 +3,23 @@
 
 const int len = 4;
 Metro metros[len] = {
-  Metro(1, true), Metro(10, true), Metro(100, true), Metro(1000, true)};
+  Metro(10, true), Metro(100, true), Metro(1000, true), Metro(10000, true)};
 Queue queues[len] = {Queue(), Queue(), Queue(), Queue()};
 int pins[len] = {9, 10, 12, 13};
 int states[len] = {LOW, LOW, LOW, LOW};
 
 static float msbase = 100;
-static float msmax = 1750;
+static float msmax = 1500;
 static float lenbase = 1;
 static float lenmax = 6;
 static float gapbase = 20000;
-static float gapmin = 500;
+static float gapmin = 750;
 static float offmin = 10;
 static float offmax = 250;
 
 void loadQueue(Queue *queue, int ms, int len, int gap)
 {
-  len = random(1, len);
+  len = random(0, len);
   gap = random(gap / 2, gap);
   // push even parity group of ons and offs
   for (int i = 0; i < len; i++) {
