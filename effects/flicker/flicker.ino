@@ -1,12 +1,24 @@
 #include <Metro.h>
 #include <Queue.h>
 
+
+struct effect {
+  float onbase;
+  float onmax;
+  float lenbase;
+  float lenmax;
+  float gapbase;
+  float gapmin;
+  float offmin;
+  float offmax;
+};
+
 const int len = 4;
-Metro metros[len] = {
-  Metro(10, true), Metro(100, true), Metro(1000, true), Metro(10000, true)};
-Queue queues[len] = {Queue(), Queue(), Queue(), Queue()};
+effect *effects;
+Metro *metros;
+Queue *queues;
 int pins[len] = {9, 10, 12, 13};
-int states[len] = {LOW, LOW, LOW, LOW};
+int states[len];
 
 static float msbase = 100;
 static float msmax = 1500;
@@ -46,8 +58,17 @@ void togglePin(int pin)
 
 void setup()
 {
+  free(metros);
+  free(queues);
+  free(effects);
+  effects = (effect *) malloc(sizeof(effect) * len);
+  metros = (Metro *) malloc(sizeof(Metro) * len);
+  queues = (Queue *) malloc(sizeof(Queue) * len);
   for (int i = 0; i < len; i++) {
+    metros[i] = Metro(pow(10, i+2), true);
+    queues[i] = Queue();
     pinMode(pins[i], OUTPUT);
+    states[i] = LOW;
     digitalWrite(pins[i], states[i]);
   }
 }
