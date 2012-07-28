@@ -205,20 +205,25 @@ def main(argv=None):
             if (parse_scoreboard(msg)):
                print "NEW MUTANT SAVIOR!"
          if (msg.startswith("WaveNum")):
-            try:
+            # Watchpoint based events need gamerunning check
+            if (gamerunning):
                wave_num = int(msg.split(":")[1])+1
                print "New Wave: " + str(wave_num)
-            except:
-               pass
          if (msg.startswith("ScoreChange")):
-            score = msg.split(",")[1]
-            #            print score
+            # Watchpoint based events need gamerunning check
+            if (gamerunning):
+               score = msg.split(",")[1]
+               # print score
          if (msg.startswith("HumanSaved")):
             print "Human Saved!  Praise the Mutant!"
          if (msg.startswith("HumanKilled")):
             print "Human Killed!"
          if (msg.startswith("GruntKilledByElectrode")):
             print "Stupid Robot"
+         if (msg.startswith("EnforcerShot")):
+            # Watchpoint based events need gamerunning check
+            if (gamerunning):
+               print "Enforcer shot!"
 
 if __name__ == "__main__":
    sys.exit(main())

@@ -10,4 +10,4 @@ wp bde4,8,w,1,{mcor_send "ScoreChange,%x",d@bde4; g}
 bp 036a,1,{mcor_send "HumanSaved"; g}
 bp 03a2,1,{mcor_send "HumanKilled"; g}
 bp 3aa9,1,{mcor_send "GruntKilledByElectrode"; g}
-
+wp c80e,1,w,wpdata==22,{mcor_send "EnforcerShot"; g}
