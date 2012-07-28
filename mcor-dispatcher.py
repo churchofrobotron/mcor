@@ -188,6 +188,9 @@ def main(argv=None):
          if (msg.startswith("NewScores")):
             if (parse_scoreboard(msg)):
                print "NEW MUTANT SAVIOR!"
+         if (msg.startswith("ScoreChange")):
+            score = msg.split(",")[1]
+            #            print score
 
 if __name__ == "__main__":
    sys.exit(main())
