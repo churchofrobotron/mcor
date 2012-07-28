@@ -12,10 +12,20 @@ import shutil
 
 # CONFIG
 scores_extension = ".mp4"
+mame_dir = "/Users/bzztbomb/projects/churchOfRobotron/mame_146/"
+leaderboard_dir = "./leaderboard/"
 
+#
 serial_devices = []
 last_time = time.time()
 
+def usage():
+	print "Usage:"
+	print " mcor-disatcher <port> (2084 of course bitz)";
+
+#
+# Device interface
+#
 # TODO: Look at /dev/tty.* and try to open them
 def find_devices():
    global serial_devices
@@ -35,10 +45,9 @@ def send_command(c):
 def send_laser(num):
    send_command("LAS1:" + "{0:x}\n".format(num))
 
-def usage():
-	print "Usage:"
-	print " mcor-disatcher <port> (2084 of course bitz)";
-
+#
+# Scoreboard
+#
 def filter_space(value):
     if (value == 0x3A):
         return ' '
@@ -81,9 +90,10 @@ def parse_hex_initials(inits):
 
 # TODO: Save old versions of scoreboard
 def parse_scoreboard(msg):
-    # TODO: msg contains the initials and score of the latest player, rename last_death.gif to <initials>_<score>.gif
-    f = open("/Users/bzztbomb/projects/churchOfRobotron/mame_146/nvram/robotron/nvram", "r")
-    leaderboard = open("leaderboard/data/leaderboard.txt", "w")
+    f = open(os.path.join(mame_dir, "nvram/robotron/nvram"), "r")
+
+    leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
+
     # Combine nibbles in values array
     values = []
     byte = f.read(2)
@@ -94,13 +104,22 @@ def parse_scoreboard(msg):
 
     # Spit out the most recent score first
     items = msg.split(",")
-    recent_initials = parse_hex_initials(items[2])
-    scoreboard_line(leaderboard, recent_initials, items[3])
+    recent_initials = (parse_hex_initials(items[2])).strip()
+    recent_score = int(items[3])
+    scoreboard_line(leaderboard, recent_initials, recent_score)
 
-    shutil.move("leaderboard/photo_capture/deathface" + scores_extension, "leaderboard/data/" + recent_initials.strip() + "_" + str(items[3]) + scores_extension)
+    source = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
+    dest = os.path.join(leaderboard_data, recent_initials.strip() + "_" + str(items[3]) + scores_extension)
+    try:
+       shutil.move(source, dest)
+    except:
+       print "Error moving" + source + " to " + dest
+       pass
 
     # GC is stored a bit funny because you can optionally enter a 20 digit initial
-    scoreboard_line(leaderboard, get_initials(values, 0x99), get_score(values, 0xB0))
+    savior_initials = get_initials(values, 0x99).strip()
+    savior_score = get_score(values, 0xB0)
+    scoreboard_line(leaderboard, savior_initials, savior_score)
 
     # Get rest of scores
     offset = 0xB4
@@ -111,18 +130,21 @@ def parse_scoreboard(msg):
     f.close()
     print "Scoreboard written."
 
+    if ((savior_score == recent_score) and (savior_initials == recent_initials)):
+       return True
+    else:
+       return False
+
 # We should save each death face to last_death.gif
 def save_player_face():
    cwd = os.getcwd()
-   os.chdir("leaderboard/photo_capture")
+   os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
    subprocess.call(['/bin/sh', 'make-deathface.sh'])
    os.chdir(cwd)
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 def main(argv=None):
-   save_player_face()
-
    global last_time
    # TODO: Find devices during runtime?
    find_devices()
@@ -164,7 +186,8 @@ def main(argv=None):
          if (msg.startswith("Player death")):
             save_player_face()
          if (msg.startswith("NewScores")):
-            parse_scoreboard(msg)
+            if (parse_scoreboard(msg)):
+               print "NEW MUTANT SAVIOR!"
 
 if __name__ == "__main__":
    sys.exit(main())
