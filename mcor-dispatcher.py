@@ -90,7 +90,6 @@ def parse_hex_initials(inits):
          res = res + " "
    return res
 
-# TODO: Save old versions of scoreboard
 def parse_scoreboard(msg):
     f = open(os.path.join(mame_dir, "nvram/robotron/nvram"), "r")
 
@@ -133,6 +132,12 @@ def parse_scoreboard(msg):
        offset = offset + 7
     leaderboard.close()
     f.close()
+
+    cwd = os.getcwd()
+    os.chdir(leaderboard_dir)
+    subprocess.call(['/bin/sh', 'save_score_state.sh'])
+    os.chdir(cwd)
+
     print "Scoreboard written."
 
     if ((savior_score == recent_score) and (savior_initials == recent_initials)):
