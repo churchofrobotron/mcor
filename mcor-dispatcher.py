@@ -92,6 +92,9 @@ def parse_hex_initials(inits):
 def parse_scoreboard(msg):
     f = open(os.path.join(mame_dir, "nvram/robotron/nvram"), "r")
 
+    leaderboard_data = os.path.join(leaderboard_dir, "data")
+    leaderboard_photocapture = os.path.join(leaderboard_dir, "photo_capture")
+
     leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
 
     # Combine nibbles in values array
@@ -158,6 +161,10 @@ def main(argv=None):
 
    port = int(argv[1])
 
+   dump_udp = False
+   if (len(argv) > 2):
+      dump_udp = (int(argv[2]) == 1)
+
    gamerunning = False
 
    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -177,7 +184,9 @@ def main(argv=None):
       result = select.select([s],[],[],0.001)
       if (len(result[0]) > 0):
          msg = result[0][0].recv(80) # 10 bytes
-         print "%s | %s" %(dump_hex(msg), msg)
+
+         if (dump_udp):
+            print "%s | %s" %(dump_hex(msg), msg)
 
          if (msg.startswith("Game start")):
             gamerunning = True
@@ -188,9 +197,21 @@ def main(argv=None):
          if (msg.startswith("NewScores")):
             if (parse_scoreboard(msg)):
                print "NEW MUTANT SAVIOR!"
+         if (msg.startswith("WaveNum")):
+            try:
+               wave_num = int(msg.split(":")[1])+1
+               print "New Wave: " + str(wave_num)
+            except:
+               pass
          if (msg.startswith("ScoreChange")):
             score = msg.split(",")[1]
             #            print score
+         if (msg.startswith("HumanSaved")):
+            print "Human Saved!  Praise the Mutant!"
+         if (msg.startswith("HumanKilled")):
+            print "Human Killed!"
+         if (msg.startswith("GruntKilledByElectrode")):
+            print "Stupid Robot"
 
 if __name__ == "__main__":
    sys.exit(main())
