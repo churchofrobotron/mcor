@@ -79,6 +79,8 @@ def scoreboard_line(f, initials, score):
       f.write(csv_it([initials, score, initials.strip() + "_" + str(score) + scores_extension])+"\n")
 
 def parse_hex_initials(inits):
+   if (inits.strip() == "FF FF FF"):
+      return "NOOB"
    letters = inits.split(" ")
    res = ""
    for i in letters:
