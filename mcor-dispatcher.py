@@ -71,7 +71,7 @@ def csv_it(values):
     res = ""
     for i in values:
         res = res + str(i) + ","
-    res = res[:len(res)-2]
+    res = res[:len(res)-1]
     return res
 
 def scoreboard_line(f, initials, score):
@@ -135,7 +135,7 @@ def parse_scoreboard(msg):
 
     cwd = os.getcwd()
     os.chdir(leaderboard_dir)
-    subprocess.call(['/bin/sh', 'save_score_state.sh'])
+    subprocess.call(['./copy_and_save_leaderboard.sh'])
     os.chdir(cwd)
 
     print "Scoreboard written."
