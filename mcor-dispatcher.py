@@ -11,7 +11,7 @@ import os
 import shutil
 
 # CONFIG
-scores_extension = ".mp4"
+scores_extension = ".gif"
 mame_dir = "/Users/bzztbomb/projects/churchOfRobotron/mame_146/"
 leaderboard_dir = "./leaderboard/"
 
@@ -70,8 +70,8 @@ def get_score(values, offset):
 def csv_it(values):
     res = ""
     for i in values:
-        res = res + str(i) + ", "
-    res = res[:len(res)-2]
+        res = res + str(i) + ","
+    res = res[:len(res)-1]
     return res
 
 def scoreboard_line(f, initials, score):
@@ -135,7 +135,7 @@ def parse_scoreboard(msg):
 
     cwd = os.getcwd()
     os.chdir(leaderboard_dir)
-    subprocess.call(['/bin/sh', 'save_score_state.sh'])
+    subprocess.call(['./copy_and_save_leaderboard.sh'])
     os.chdir(cwd)
 
     print "Scoreboard written."
@@ -146,11 +146,33 @@ def parse_scoreboard(msg):
        return False
 
 # We should save each death face to last_death.gif
-def save_player_face():
+capture_handle = None
+
+def start_capture():
+   global capture_handle
    cwd = os.getcwd()
    os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
+   cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
+   capture_handle = subprocess.Popen(cmd.split(" "))
+   os.chdir(cwd)
+   print "Capture started."
+
+def stop_capture():
+   global capture_handle
+   if (capture_handle == None):
+      return
+   capture_handle.kill()
+   capture_handle = None
+   print "Capture ended."
+
+def save_player_face():
+   stop_capture()
+   cwd = os.getcwd()
+   os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
+   print "Saving deathface"
    subprocess.call(['/bin/sh', 'make-deathface.sh'])
    os.chdir(cwd)
+   start_capture()
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
@@ -197,8 +219,10 @@ def main(argv=None):
 
          if (msg.startswith("Game start")):
             gamerunning = True
+            start_capture()
          if (msg.startswith("Game over")):
             gamerunning = False
+            stop_capture()
          if (msg.startswith("Player death")):
             save_player_face()
          if (msg.startswith("NewScores")):
