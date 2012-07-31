@@ -19,14 +19,17 @@ static effect effects[] = {effect(), effect(), effect(), effect()};
 static Metro metros[] = {
   Metro(12800), Metro(6400),
   Metro(800), Metro(400)};
-static Queue queues[] = {Queue(), Queue(), Queue(), Queue()};
+// must hold lenmax * 2 + 2
+static Queue queues[] = {Queue(50), Queue(50), Queue(50), Queue(50)};
 static const int pins[] = {9, 10, 13, 14};
 static int states[] = {LOW, LOW, LOW, LOW};
 
 void loadQueue(int q)
 {
   // push even parity group of ons and offs
-  for (int i = 0; i < random(0, effects[q].lenbase); i++) {
+  for (int i = 0;
+       i < random((effects[q].lenbase / 2), effects[q].lenbase);
+       i++) {
     queues[q].push(random(effects[q].onmin, effects[q].onbase));
     queues[q].push(random(effects[q].offmin, effects[q].offmax));
   }
@@ -72,7 +75,7 @@ void setup()
     effects[i].onmin = 3;
     effects[i].onmax = 1250;
     effects[i].lenbase = 1;
-    effects[i].lenmax = 8;
+    effects[i].lenmax = 10;
     effects[i].gapbase = 10000;
     effects[i].gapmin = 750;
     effects[i].offmin = 10;
@@ -80,15 +83,43 @@ void setup()
   }
 }
 
+void diag(int i)
+{
+  Serial.println("diag");
+  Serial.println(i);
+  Serial.println(effects[i].onbase);
+  //Serial.println(effects[i].onmin);
+  Serial.println(effects[i].onmax);
+  Serial.println(effects[i].lenbase);
+  Serial.println(effects[i].lenmax);
+  Serial.println(effects[i].gapbase);
+  Serial.println(effects[i].gapmin);
+  //Serial.println(effects[i].offmin);
+  //Serial.println(effects[i].offmax);
+  Serial.println();
+}
+
+float randomFloat(float min, float max)
+{
+  return (float)random((long)(min * 100), (long)(max * 100)) / 100.0;
+}
+
 void loop()
 {
   for (int i = 0; i < len; i++) {
     if (queues[i].isEmpty()) {
       // We've used up this sequence of firings, speed up and load another.
-      effects[i].onbase = min(effects[i].onbase * 1.05, effects[i].onmax);
-      effects[i].lenbase = min(effects[i].lenbase * 1.05, effects[i].lenmax);
-      effects[i].gapbase = max(effects[i].gapbase * 0.97, effects[i].gapmin);
+      effects[i].onbase = min(
+          randomFloat(effects[i].onbase * 1.05, effects[i].onbase * 1.1),
+          effects[i].onmax);
+      effects[i].lenbase = min(
+          randomFloat(effects[i].lenbase * 1.05, effects[i].lenbase * 1.1),
+          effects[i].lenmax);
+      effects[i].gapbase = max(
+          randomFloat(effects[i].gapbase * 0.9, effects[i].gapbase * 0.95),
+          effects[i].gapmin);
       loadQueue(i);
+      diag(i);
     }
     if (metros[i].check() == 1) {
       // The metro has fired.  Toggle its pin and tell it to fire when
@@ -98,5 +129,5 @@ void loop()
       metros[i].interval(queues[i].pop());
     }
   }    
-  //delay(1);
+  delay(1);
 }
