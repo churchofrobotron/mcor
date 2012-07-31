@@ -1,3 +1,4 @@
+# Church of Robotron Event Dispatcher
 import sys
 import select
 import socket
@@ -7,10 +8,25 @@ import time
 from struct import *
 import subprocess
 import os
+import shutil
 
+# CONFIG
+scores_extension = ".gif"
+mame_dir = "/Users/bzztbomb/projects/churchOfRobotron/mame_146/"
+leaderboard_dir = "./leaderboard/"
+
+#
 serial_devices = []
 last_time = time.time()
 
+def usage():
+	print "Usage:"
+	print " mcor-disatcher <port> (2084 of course bitz)";
+
+#
+# Device interface
+#
+# TODO: Look at /dev/tty.* and try to open them
 def find_devices():
    global serial_devices
    for dev in serial_devices:
@@ -29,10 +45,9 @@ def send_command(c):
 def send_laser(num):
    send_command("LAS1:" + "{0:x}\n".format(num))
 
-def usage():
-	print "Usage:"
-	print " mcor-disatcher <port> (2084 of course bitz)";
-
+#
+# Scoreboard
+#
 def filter_space(value):
     if (value == 0x3A):
         return ' '
@@ -55,15 +70,17 @@ def get_score(values, offset):
 def csv_it(values):
     res = ""
     for i in values:
-        res = res + str(i) + ", "
-    res = res[:len(res)-2]
+        res = res + str(i) + ","
+    res = res[:len(res)-1]
     return res
 
 def scoreboard_line(f, initials, score):
    if (len(initials.strip()) > 0):
-      f.write(csv_it([initials, score, "deathface.png"])+"\n")
+      f.write(csv_it([initials, score, initials.strip() + "_" + str(score) + scores_extension])+"\n")
 
 def parse_hex_initials(inits):
+   if (inits.strip() == "FF FF FF"):
+      return "NOOB"
    letters = inits.split(" ")
    res = ""
    for i in letters:
@@ -74,12 +91,13 @@ def parse_hex_initials(inits):
    return res
 
 def parse_scoreboard(msg):
-    # TODO: msg contains the initials and score of the latest player, rename last_death.gif to <initials>_<score>.gif
-    # This may take a little more thought, we may need to avoid collisions of people with the same initials and score repeating?  Maybe we don't
-    # care though, it's nice and stateless this way.
+    f = open(os.path.join(mame_dir, "nvram/robotron/nvram"), "r")
 
-    f = open("/Users/bzztbomb/projects/churchOfRobotron/mame_146/nvram/robotron/nvram", "r")
-    leaderboard = open("leaderboard/data/leaderboard.txt", "w")
+    leaderboard_data = os.path.join(leaderboard_dir, "data")
+    leaderboard_photocapture = os.path.join(leaderboard_dir, "photo_capture")
+
+    leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
+
     # Combine nibbles in values array
     values = []
     byte = f.read(2)
@@ -90,10 +108,22 @@ def parse_scoreboard(msg):
 
     # Spit out the most recent score first
     items = msg.split(",")
-    scoreboard_line(leaderboard, parse_hex_initials(items[2]), items[3])
+    recent_initials = (parse_hex_initials(items[2])).strip()
+    recent_score = int(items[3])
+    scoreboard_line(leaderboard, recent_initials, recent_score)
+
+    source = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
+    dest = os.path.join(leaderboard_data, recent_initials.strip() + "_" + str(items[3]) + scores_extension)
+    try:
+       shutil.move(source, dest)
+    except:
+       print "Error moving" + source + " to " + dest
+       pass
 
     # GC is stored a bit funny because you can optionally enter a 20 digit initial
-    scoreboard_line(leaderboard, get_initials(values, 0x99), get_score(values, 0xB0))
+    savior_initials = get_initials(values, 0x99).strip()
+    savior_score = get_score(values, 0xB0)
+    scoreboard_line(leaderboard, savior_initials, savior_score)
 
     # Get rest of scores
     offset = 0xB4
@@ -102,20 +132,51 @@ def parse_scoreboard(msg):
        offset = offset + 7
     leaderboard.close()
     f.close()
+
+    cwd = os.getcwd()
+    os.chdir(leaderboard_dir)
+    subprocess.call(['./copy_and_save_leaderboard.sh'])
+    os.chdir(cwd)
+
     print "Scoreboard written."
 
+    if ((savior_score == recent_score) and (savior_initials == recent_initials)):
+       return True
+    else:
+       return False
+
 # We should save each death face to last_death.gif
-def save_player_face():
+capture_handle = None
+
+def start_capture():
+   global capture_handle
    cwd = os.getcwd()
-   os.chdir("leaderboard/photo_capture")
+   os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
+   cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
+   capture_handle = subprocess.Popen(cmd.split(" "))
+   os.chdir(cwd)
+   print "Capture started."
+
+def stop_capture():
+   global capture_handle
+   if (capture_handle == None):
+      return
+   capture_handle.kill()
+   capture_handle = None
+   print "Capture ended."
+
+def save_player_face():
+   stop_capture()
+   cwd = os.getcwd()
+   os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
+   print "Saving deathface"
    subprocess.call(['/bin/sh', 'make-deathface.sh'])
    os.chdir(cwd)
+   start_capture()
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 def main(argv=None):
-   save_player_face()
-
    global last_time
    # TODO: Find devices during runtime?
    find_devices()
@@ -128,6 +189,10 @@ def main(argv=None):
       sys.exit(1)
 
    port = int(argv[1])
+
+   dump_udp = False
+   if (len(argv) > 2):
+      dump_udp = (int(argv[2]) == 1)
 
    gamerunning = False
 
@@ -148,16 +213,41 @@ def main(argv=None):
       result = select.select([s],[],[],0.001)
       if (len(result[0]) > 0):
          msg = result[0][0].recv(80) # 10 bytes
-         print "%s | %s" %(dump_hex(msg), msg)
+
+         if (dump_udp):
+            print "%s | %s" %(dump_hex(msg), msg)
 
          if (msg.startswith("Game start")):
             gamerunning = True
+            start_capture()
          if (msg.startswith("Game over")):
             gamerunning = False
+            stop_capture()
          if (msg.startswith("Player death")):
             save_player_face()
          if (msg.startswith("NewScores")):
-            parse_scoreboard(msg)
+            if (parse_scoreboard(msg)):
+               print "NEW MUTANT SAVIOR!"
+         if (msg.startswith("WaveNum")):
+            # Watchpoint based events need gamerunning check
+            if (gamerunning):
+               wave_num = int(msg.split(":")[1])+1
+               print "New Wave: " + str(wave_num)
+         if (msg.startswith("ScoreChange")):
+            # Watchpoint based events need gamerunning check
+            if (gamerunning):
+               score = msg.split(",")[1]
+               # print score
+         if (msg.startswith("HumanSaved")):
+            print "Human Saved!  Praise the Mutant!"
+         if (msg.startswith("HumanKilled")):
+            print "Human Killed!"
+         if (msg.startswith("GruntKilledByElectrode")):
+            print "Stupid Robot"
+         if (msg.startswith("EnforcerShot")):
+            # Watchpoint based events need gamerunning check
+            if (gamerunning):
+               print "Enforcer shot!"
 
 if __name__ == "__main__":
    sys.exit(main())

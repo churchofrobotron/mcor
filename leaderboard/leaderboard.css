@@ -14,6 +14,7 @@ body {
 	font-size: 28px;
 	color: #eeee00;
 	text-align: center;
+	overflow: hidden;
 }
 
 .red {
@@ -90,8 +91,8 @@ body {
 	background-repeat: no-repeat;
 	background-position: center center;
 	background-size: 100%;
-	width: 500px;
-	height: 400px;
+	width: 400px;
+	height: 320px;
 	border: solid pink 3px;
 }
 
