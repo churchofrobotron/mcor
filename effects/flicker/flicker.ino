@@ -15,7 +15,10 @@ struct effect {
 
 static const int len = 4;
 static effect effects[] = {effect(), effect(), effect(), effect()};
-static Metro metros[] = {Metro(6400), Metro(3200), Metro(1600), Metro(800)};
+// first 2 effects are jacob's ladders, rest of the effects are fake arcers
+static Metro metros[] = {
+  Metro(12800), Metro(6400),
+  Metro(800), Metro(400)};
 static Queue queues[] = {Queue(), Queue(), Queue(), Queue()};
 static const int pins[] = {9, 10, 13, 14};
 static int states[] = {LOW, LOW, LOW, LOW};
@@ -64,13 +67,13 @@ void setup()
     effects[i].offmax = 0;      // should not be used
   }
   for (int i = 2; i < len; i++) {
-    // rest of the effects are fake arcers
+    // rest of the effects are arcers
     effects[i].onbase = 100;
     effects[i].onmin = 3;
     effects[i].onmax = 1250;
     effects[i].lenbase = 1;
     effects[i].lenmax = 8;
-    effects[i].gapbase = 20000;
+    effects[i].gapbase = 10000;
     effects[i].gapmin = 750;
     effects[i].offmin = 10;
     effects[i].offmax = 200;
