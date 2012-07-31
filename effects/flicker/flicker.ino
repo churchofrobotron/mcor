@@ -1,9 +1,9 @@
 #include <Metro.h>
 #include <Queue.h>
 
-
 struct effect {
   float onbase;
+  float onmin;
   float onmax;
   float lenbase;
   float lenmax;
@@ -13,36 +13,24 @@ struct effect {
   float offmax;
 };
 
-const int len = 4;
-effect *effects;
-Metro *metros;
-Queue *queues;
-int pins[len] = {9, 10, 12, 13};
-int states[len];
+static const int len = 4;
+static effect effects[] = {effect(), effect(), effect(), effect()};
+static Metro metros[] = {Metro(6400), Metro(3200), Metro(1600), Metro(800)};
+static Queue queues[] = {Queue(), Queue(), Queue(), Queue()};
+static const int pins[] = {9, 10, 13, 14};
+static int states[] = {LOW, LOW, LOW, LOW};
 
-static float msbase = 100;
-static float msmax = 1500;
-static float lenbase = 1;
-static float lenmax = 6;
-static float gapbase = 20000;
-static float gapmin = 750;
-static float offmin = 10;
-static float offmax = 250;
-
-void loadQueue(Queue *queue, int ms, int len, int gap)
+void loadQueue(int q)
 {
-  len = random(0, len);
-  gap = random(gap / 2, gap);
   // push even parity group of ons and offs
-  for (int i = 0; i < len; i++) {
-    queue->push(random(1, ms));
-    queue->push(random(offmin, offmax));
+  for (int i = 0; i < random(0, effects[q].lenbase); i++) {
+    queues[q].push(random(effects[q].onmin, effects[q].onbase));
+    queues[q].push(random(effects[q].offmin, effects[q].offmax));
   }
   // push a final on to make us odd parity
-  queue->push(random(1, ms));
-  // push delay between group to make us even parity
-  queue->push(gap);
-
+  queues[q].push(random(effects[q].onmin, effects[q].onbase));
+  // push final off to make us even parity; delay between next group
+  queues[q].push(random(effects[q].gapbase / 2, effects[q].gapbase));
 }
 
 void togglePin(int pin)
@@ -58,18 +46,34 @@ void togglePin(int pin)
 
 void setup()
 {
-  free(metros);
-  free(queues);
-  free(effects);
-  effects = (effect *) malloc(sizeof(effect) * len);
-  metros = (Metro *) malloc(sizeof(Metro) * len);
-  queues = (Queue *) malloc(sizeof(Queue) * len);
   for (int i = 0; i < len; i++) {
-    metros[i] = Metro(pow(10, i+2), true);
-    queues[i] = Queue();
     pinMode(pins[i], OUTPUT);
     states[i] = LOW;
     digitalWrite(pins[i], states[i]);
+  }
+  for (int i = 0; i < 2; i++) {
+    // first 2 effects are jacob's ladders
+    effects[i].onbase = 4000;
+    effects[i].onmin = 2000;
+    effects[i].onmax = 4000;
+    effects[i].lenbase = 0;
+    effects[i].lenmax = 0;
+    effects[i].gapbase = 20000;
+    effects[i].gapmin = 750;
+    effects[i].offmin = 0;      // should not be used
+    effects[i].offmax = 0;      // should not be used
+  }
+  for (int i = 2; i < len; i++) {
+    // rest of the effects are fake arcers
+    effects[i].onbase = 100;
+    effects[i].onmin = 3;
+    effects[i].onmax = 1250;
+    effects[i].lenbase = 1;
+    effects[i].lenmax = 8;
+    effects[i].gapbase = 20000;
+    effects[i].gapmin = 750;
+    effects[i].offmin = 10;
+    effects[i].offmax = 200;
   }
 }
 
@@ -78,23 +82,18 @@ void loop()
   for (int i = 0; i < len; i++) {
     if (queues[i].isEmpty()) {
       // We've used up this sequence of firings, speed up and load another.
-      msbase = min(msbase * 1.05, msmax);
-      lenbase = min(lenbase * 1.05, lenmax);
-      gapbase = max(gapbase * 0.97, gapmin);
-      loadQueue(&queues[i], msbase, lenbase, gapbase);
-      // write a diagnostic
-      Serial.println("");
-      Serial.println("loop");
-      Serial.println(msbase);
-      Serial.println(lenbase);
-      Serial.println(gapbase);
+      effects[i].onbase = min(effects[i].onbase * 1.05, effects[i].onmax);
+      effects[i].lenbase = min(effects[i].lenbase * 1.05, effects[i].lenmax);
+      effects[i].gapbase = max(effects[i].gapbase * 0.97, effects[i].gapmin);
+      loadQueue(i);
     }
     if (metros[i].check() == 1) {
-      // the metro has fired.  Toggle its pin and tell it to fire when
+      // The metro has fired.  Toggle its pin and tell it to fire when
       // the pin should be toggled again.
       togglePin(i);
+      metros[i].reset();        // XXX necessary?
       metros[i].interval(queues[i].pop());
     }
   }    
-  delay(1);
+  //delay(1);
 }
