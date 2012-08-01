@@ -54,10 +54,9 @@ void togglePin(int pin)
   digitalWrite(pins[pin], states[pin]);
 }
 
-void setup()
+void setup_effects()
 {
   for (int i = 0; i < len; i++) {
-    pinMode(pins[i], OUTPUT);
     states[i] = LOW;
     digitalWrite(pins[i], states[i]);
   }
@@ -85,6 +84,14 @@ void setup()
     effects[i].offmin = 10;
     effects[i].offmax = 200;
   }
+}
+
+void setup()
+{
+  for (int i = 0; i < len; i++) {
+    pinMode(pins[i], OUTPUT);
+  }
+  setup_effects();
 }
 
 void diag(int i)
