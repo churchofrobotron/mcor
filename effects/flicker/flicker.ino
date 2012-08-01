@@ -13,16 +13,20 @@ struct effect {
   float offmax;
 };
 
-static const int len = 4;
-static effect effects[] = {effect(), effect(), effect(), effect()};
-// first 2 effects are jacob's ladders, rest of the effects are fake arcers
+// 2 jacob's ladders, 5 arcers
+static const int len = 7;
+static effect effects[] = {
+  effect(), effect(), effect(), effect(), effect(), effect(), effect()};
+// first 2 effects are jacob's ladders, rest of the effects are arcers
 static Metro metros[] = {
   Metro(12800), Metro(6400),
-  Metro(800), Metro(400)};
+  Metro(3200), Metro(1600), Metro(800), Metro(400), Metro(200)};
 // must hold lenmax * 2 + 2
-static Queue queues[] = {Queue(50), Queue(50), Queue(50), Queue(50)};
-static const int pins[] = {9, 10, 13, 14};
-static int states[] = {LOW, LOW, LOW, LOW};
+static Queue queues[] = {
+  Queue(50), Queue(50), Queue(50), Queue(50), Queue(50), Queue(50), Queue(50)};
+// pins 9-10 are jacob's ladders, pins 12-16 are arcers
+static const int pins[] = {9, 10, 12, 13, 14, 15, 16};
+static int states[] = {LOW, LOW, LOW, LOW, LOW, LOW};
 
 void loadQueue(int q)
 {
