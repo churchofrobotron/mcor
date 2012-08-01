@@ -1,6 +1,23 @@
 #include <Metro.h>
 #include <Queue.h>
 
+// communication stuff
+
+#define START_TYPE "START"
+#define END_TYPE "END"
+#define MY_ADDR "1"
+#define SEPARATOR ":"
+#define START_COMMAND 1
+#define END_COMMAND 2
+String startPreamble = START_TYPE MY_ADDR SEPARATOR;
+String endPreamble = END_TYPE MY_ADDR SEPARATOR;
+const unsigned int baud = 9600;
+// must be outside of function, http://arduino.cc/forum/index.php?topic=73177.0
+static String command = "";
+static boolean on = false;
+
+// effect stuff
+
 struct effect {
   float onbase;
   float onmin;
@@ -27,6 +44,42 @@ static Queue queues[] = {
 // pins 9-10 are jacob's ladders, pins 12-16 are arcers
 static const int pins[] = {9, 10, 12, 13, 14, 15, 16};
 static int states[] = {LOW, LOW, LOW, LOW, LOW, LOW};
+
+// return the data part of the command
+int parseCommand(const String &cmd)
+{
+  //command format: <my_type><my_addr>SEPARATOR<data>
+  if (cmd.startsWith(startPreamble)) {
+    return START_COMMAND;
+  }
+  if (cmd.startsWith(endPreamble)) {
+    return END_COMMAND;
+  }
+  return NULL;
+//   // ignore the number part of the command  
+//   String num = cmd.substring(preamble.length(), preamble.length() + 4);
+//   char buf[4];
+//   num.toCharArray(buf, 4); //up to 4 characters
+//   unsigned int mask;
+//   sscanf(buf, "%d", &mask);
+//   return mask;
+}
+
+String getCommand()
+{
+  char c;
+  while (Serial.available()) {
+    c = Serial.read();
+    if (c=='\n' || c=='\r') {
+      String out = command;
+      command="";
+      return out;
+    } else {
+      command += c;
+    }
+  }
+  return NULL;
+}
 
 void loadQueue(int q)
 {
@@ -60,6 +113,11 @@ void setup_effects()
     states[i] = LOW;
     digitalWrite(pins[i], states[i]);
   }
+  long metro_interval = 128000;
+  for (int i = 0; i < len; i++) {
+    metros[i].interval(metro_interval);
+    metro_interval = metro_interval / 2;
+  }
   for (int i = 0; i < 2; i++) {
     // first 2 effects are jacob's ladders
     effects[i].onbase = 4000;
@@ -88,6 +146,7 @@ void setup_effects()
 
 void setup()
 {
+  Serial.begin(baud);	// USB, communication to PC or Mac
   for (int i = 0; i < len; i++) {
     pinMode(pins[i], OUTPUT);
   }
@@ -115,7 +174,7 @@ float randomFloat(float min, float max)
   return (float)random((long)(min * 100), (long)(max * 100)) / 100.0;
 }
 
-void loop()
+void effect_loop()
 {
   for (int i = 0; i < len; i++) {
     if (queues[i].isEmpty()) {
@@ -140,5 +199,22 @@ void loop()
       metros[i].interval(queues[i].pop());
     }
   }    
+}
+
+void loop()
+{
+  int cmd = parseCommand(getCommand());
+  if (cmd == START_COMMAND) {
+    setup_effects();
+    on = true;
+    Serial.println("on");
+  } else if (cmd == END_COMMAND) {
+    setup_effects();
+    on = false;
+    Serial.println("off");
+  }
+  if (on) {
+    effect_loop();
+  }
   delay(1);
 }
