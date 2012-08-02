@@ -9,11 +9,14 @@ from struct import *
 import subprocess
 import os
 import shutil
+import glob
 
 # CONFIG
 scores_extension = ".gif"
-mame_dir = "/Users/bzztbomb/projects/churchOfRobotron/mame_146/"
+mame_dir = "../mame/"
 leaderboard_dir = "./leaderboard/"
+photo_frame_dir = "./leaderboard/photo_capture/work/"
+num_photo_frames = 15
 
 #
 serial_devices = []
@@ -189,6 +192,18 @@ def save_player_face():
    os.chdir(cwd)
    start_capture()
 
+# Too lazy to manually deal with gstreamer install to get the max-files multifilesink option to work,
+# so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
+# so it should be quick
+def cleanup_old_photos():
+   files = filter(os.path.isfile, glob.glob(photo_frame_dir + "*.jpeg"))
+   files.sort(key=lambda x: os.path.getmtime(x))
+   num_del = len(files) - num_photo_frames
+   if (num_del <= 0):
+      return
+   for i in files[0:num_del]:
+      os.remove(i)
+
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 # XXX wrap in a catchall to turn off everything that may be running, in case
@@ -222,6 +237,8 @@ def main(argv=None):
 
    print "Waiting for data..."
    while True:
+      cleanup_old_photos()
+
       if (gamerunning):
          if start_time is None:
              start_time = time.time() # safety
