@@ -223,6 +223,8 @@ def main(argv=None):
    print "Waiting for data..."
    while True:
       if (gamerunning):
+         if start_time is None:
+             start_time = time.time() # safety
          if time.time() - last_beat > 5:
              send_heartbeat(time.time - start_time)
              last_beat = time.time()
