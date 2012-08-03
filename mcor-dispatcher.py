@@ -17,11 +17,11 @@ leaderboard_dir = "./leaderboard/"
 
 #
 serial_devices = []
-last_time = time.time()
+#last_time = time.time()
 
 def usage():
 	print "Usage:"
-	print " mcor-disatcher <port> (2084 of course bitz)";
+	print " mcor-disatcher <port> (2084 of course bitz)"
 
 #
 # Device interface
@@ -44,6 +44,21 @@ def send_command(c):
 
 def send_laser(num):
    send_command("LAS1:" + "{0:x}\n".format(num))
+
+def send_start():
+   send_command("START1:666\n")
+
+def send_end():
+   send_command("END1:666\n")
+
+def send_humankilled():
+   send_command("HUMKIL1:666\n")
+
+def send_wave(num):
+   send_command("WAV1:" + "{0:x}\n".format(num))
+
+def send_heartbeat(num):
+   send_command("BEAT1:" + "{0:x}\n".format(num))
 
 #
 # Scoreboard
@@ -176,8 +191,12 @@ def save_player_face():
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
+# XXX wrap in a catchall to turn off everything that may be running, in case
+#     of unexpected error
 def main(argv=None):
-   global last_time
+   #global last_time
+   start_time = None
+   last_beat = time.time()
    # TODO: Find devices during runtime?
    find_devices()
 
@@ -204,10 +223,17 @@ def main(argv=None):
    print "Waiting for data..."
    while True:
       if (gamerunning):
-         if (time.time() - last_time > 0.5):
-            send_laser(random.randint(1,511));
-            last_time = time.time()
+         if time.time() - last_beat > 5:
+             send_heartbeat(time.time - start_time)
+             last_beat = time.time()
+         #if (time.time() - last_time > 0.5):
+         #   #send_laser(random.randint(1,511))
+         #   last_time = time.time()
       else:
+         start_time = None
+         # turn off any laser that might be on
+         # XXX the laser controller should handle this to avoid leaving it on
+         #     when we break
          send_laser(0)
 
       result = select.select([s],[],[],0.001)
@@ -219,9 +245,13 @@ def main(argv=None):
 
          if (msg.startswith("Game start")):
             gamerunning = True
+            start_time = time.time()
+            send_start()
             start_capture()
          if (msg.startswith("Game over")):
             gamerunning = False
+            start_time = None
+            send_end()
             stop_capture()
          if (msg.startswith("Player death")):
             save_player_face()
@@ -232,6 +262,7 @@ def main(argv=None):
             # Watchpoint based events need gamerunning check
             if (gamerunning):
                wave_num = int(msg.split(":")[1])+1
+               send_wave(wave_num)
                print "New Wave: " + str(wave_num)
          if (msg.startswith("ScoreChange")):
             # Watchpoint based events need gamerunning check
@@ -241,12 +272,15 @@ def main(argv=None):
          if (msg.startswith("HumanSaved")):
             print "Human Saved!  Praise the Mutant!"
          if (msg.startswith("HumanKilled")):
+            send_humankilled()
             print "Human Killed!"
          if (msg.startswith("GruntKilledByElectrode")):
             print "Stupid Robot"
          if (msg.startswith("EnforcerShot")):
             # Watchpoint based events need gamerunning check
             if (gamerunning):
+               # XXX send a laser here, but the controller must turn it of
+               # send_laser(random.randint(1,511))
                print "Enforcer shot!"
 
 if __name__ == "__main__":
