@@ -246,8 +246,6 @@ def main(argv=None):
 
          cleanup_old_photos()
 
-         send_laser(random.randint(1,511))
-
          if (gamerunning):
             if start_time is None:
                start_time = time.time() # safety
