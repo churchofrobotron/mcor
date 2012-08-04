@@ -20,8 +20,8 @@ photo_frame_dir = "./leaderboard/photo_capture/work/"
 num_photo_frames = 15
 dev_tty_prefix = "/dev/ttyACM*"
 photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
-dev_box = True
-if (dev_box):
+if (os.path.isfile("dev-mode")):
+   print "Override config for development."
    dev_tty_prefix = "/dev/tty.usbmodem*"
    photo_capture_cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
 
@@ -68,7 +68,7 @@ def send_wave(num):
    send_command("WAV1:" + "{0:x}\n".format(num))
 
 def send_heartbeat(num):
-   send_command("BEAT1:" + "{0:x}\n".format(num))
+   send_command("BEAT1:" + "{0:x}\n".format(int(num)))
 
 #
 # Scoreboard
