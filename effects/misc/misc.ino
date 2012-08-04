@@ -16,7 +16,7 @@ const unsigned int baud = 9600;
 // // must be outside of function, http://arduino.cc/forum/index.php?topic=73177.0
 static String command = "";
 const int killedInterval = 3000;       // 3 secs
-const int killedInterval = 5000;       // 5 secs
+const int waveInterval = 5000;       // 5 secs
 static unsigned long killedTime;
 static unsigned long waveTime;
 
@@ -26,7 +26,7 @@ int parseCommand(const String &cmd)
   if (cmd.startsWith(killedPreamble)) {
     return KILLED_COMMAND;
   }
-  if (cmd.startsWith(WavePreamble)) {
+  if (cmd.startsWith(wavePreamble)) {
     return WAVE_COMMAND;
   }
   return NULL;
@@ -70,11 +70,11 @@ void loop()
 {
   int cmd = parseCommand(getCommand());
   if (cmd == KILLED_COMMAND) {
-    // turn on killed pin
+    digitalWrite(KILLED_PIN, HIGH);
     killedTime = millis();
     Serial.println("killed start");
   } else if (cmd == WAVE_COMMAND) {
-    // turn on wave pin
+    digitalWrite(WAVE_PIN, HIGH);
     waveTime = millis();
     Serial.println("wave start");
   }
@@ -86,5 +86,5 @@ void loop()
     digitalWrite(WAVE_PIN, LOW);
     Serial.println("wave stop");
   }
-  delay(10);
+  delay(100);
 }
