@@ -1,3 +1,5 @@
+#include <FlexiTimer2.h>
+
 /* USB to Serial - Teensy becomes a USB to Serial converter
    http://dorkbotpdx.org/blog/paul/teensy_as_benito_at_57600_baud
 
@@ -55,7 +57,10 @@ void parse_command(const String &cmd)
   //command format: <my_type><my_addr>SEPARATOR<
   //check for command preamble
   if (!cmd.startsWith(preamble))
-    {Serial.println("bad preamble");return;}
+    {
+    Serial.println("bad preamble");
+    return;
+    }
   
   String num=cmd.substring(preamble.length(),preamble.length()+4);
   
