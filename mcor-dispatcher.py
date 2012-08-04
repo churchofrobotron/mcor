@@ -68,7 +68,7 @@ def send_wave(num):
    send_command("WAV1:" + "{0:x}\n".format(num))
 
 def send_heartbeat(num):
-   send_command("BEAT1:" + "{0:x}\n".format(num))
+   send_command("BEAT1:" + "{0:x}\n".format(int(num)))
 
 #
 # Scoreboard
