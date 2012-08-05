@@ -20,11 +20,21 @@ photo_frame_dir = "./leaderboard/photo_capture/work/"
 num_photo_frames = 30
 dev_tty_prefix = "/dev/ttyACM*"
 photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
+photo_frame_dir = "./leaderboard/photo_capture/work/"
+
+# Cleanup work directory
+shutil.rmtree(photo_frame_dir, True)
+
 if (os.path.isfile("dev-mode")):
    print "Override config for development."
    dev_tty_prefix = "/dev/tty.usbmodem*"
    photo_capture_cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
-
+   os.makedirs(photo_frame_dir)
+else:
+   tmp_dir = "/run/shm/mcor"
+   shutil.rmtree(tmp_dir, True)
+   os.makedirs(tmp_dir)
+   os.symlink(tmp_dir, photo_frame_dir)
 #
 serial_devices = []
 #last_time = time.time()
