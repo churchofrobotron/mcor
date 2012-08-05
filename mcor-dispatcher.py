@@ -33,6 +33,7 @@ else:
    tmp_dir = "/run/shm/mcor"
    shutil.rmtree(tmp_dir, True)
    os.makedirs(tmp_dir)
+   os.remove(photo_frame_dir)
    os.symlink(tmp_dir, photo_frame_dir)
 #
 serial_devices = []
@@ -211,7 +212,7 @@ def save_player_face():
 # so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
 # so it should be quick
 def cleanup_old_photos():
-   files = filter(os.path.isfile, glob.glob(os.join(photo_frame_dir, "*.jpeg")))
+   files = filter(os.path.isfile, glob.glob(os.path.join(photo_frame_dir, "*.jpeg")))
    files.sort(key=lambda x: os.path.getmtime(x))
    num_del = len(files) - num_photo_frames
    if (num_del <= 0):
