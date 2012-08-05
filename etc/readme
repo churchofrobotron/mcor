@@ -1,0 +1,8 @@
+supervisord:
+
+cp supervisord.conf /etc/supervisor
+cp mcor.conf /etc/supervisor/conf.d
+sudo /etc/init.d/supervisor restart
+sudo supervisorctl # "restart all" reload help status
+ls /var/log/supervisor
+

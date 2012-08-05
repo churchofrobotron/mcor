@@ -3,18 +3,24 @@
 
 // communication stuff
 
+// we turn on on game start, off on game end
 #define START_TYPE "START"
 #define END_TYPE "END"
+#define BEAT_TYPE "BEAT"
 #define MY_ADDR "1"
 #define SEPARATOR ":"
 #define START_COMMAND 1
 #define END_COMMAND 2
+#define BEAT_COMMAND 3
 String startPreamble = START_TYPE MY_ADDR SEPARATOR;
 String endPreamble = END_TYPE MY_ADDR SEPARATOR;
+String beatPreamble = BEAT_TYPE MY_ADDR SEPARATOR;
 const unsigned int baud = 9600;
 // must be outside of function, http://arduino.cc/forum/index.php?topic=73177.0
 static String command = "";
 static boolean on = false;
+static unsigned long lastBeat;
+const int beatInterval = 10000;       // die if no beat in 10 secs
 
 // effect stuff
 
@@ -55,14 +61,11 @@ int parseCommand(const String &cmd)
   if (cmd.startsWith(endPreamble)) {
     return END_COMMAND;
   }
+  if (cmd.startsWith(beatPreamble)) {
+    return BEAT_COMMAND;
+  }
+  // ignore the number part of the command  
   return NULL;
-//   // ignore the number part of the command  
-//   String num = cmd.substring(preamble.length(), preamble.length() + 4);
-//   char buf[4];
-//   num.toCharArray(buf, 4); //up to 4 characters
-//   unsigned int mask;
-//   sscanf(buf, "%d", &mask);
-//   return mask;
 }
 
 String getCommand()
@@ -109,6 +112,7 @@ void togglePin(int pin)
 
 void setup_effects()
 {
+  lastBeat = millis();
   for (int i = 0; i < len; i++) {
     states[i] = LOW;
     digitalWrite(pins[i], states[i]);
@@ -157,15 +161,18 @@ void diag(int i)
 {
   Serial.println("diag");
   Serial.println(i);
+  Serial.println("onbase");
   Serial.println(effects[i].onbase);
-  //Serial.println(effects[i].onmin);
+  Serial.println("onmax");
   Serial.println(effects[i].onmax);
+  Serial.println("lenbase");
   Serial.println(effects[i].lenbase);
+  Serial.println("lenmax");
   Serial.println(effects[i].lenmax);
+  Serial.println("gapbase");
   Serial.println(effects[i].gapbase);
+  Serial.println("gapmin");
   Serial.println(effects[i].gapmin);
-  //Serial.println(effects[i].offmin);
-  //Serial.println(effects[i].offmax);
   Serial.println();
 }
 
@@ -212,9 +219,20 @@ void loop()
     setup_effects();
     on = false;
     Serial.println("off");
+  } else if (cmd == BEAT_COMMAND) {
+    lastBeat = millis();
+    Serial.println("beat");
   }
+
+  if (millis() - lastBeat > beatInterval) {
+    // we didn't get a beat, did the game die?
+    Serial.println("no beat");
+    setup_effects();
+    on = false;
+  }
+
   if (on) {
     effect_loop();
   }
-  delay(1);
+  delay(10);
 }

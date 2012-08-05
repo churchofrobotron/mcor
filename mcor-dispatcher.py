@@ -9,12 +9,32 @@ from struct import *
 import subprocess
 import os
 import shutil
+import glob
+import traceback
 
 # CONFIG
 scores_extension = ".gif"
-mame_dir = "/Users/bzztbomb/projects/churchOfRobotron/mame_146/"
+mame_dir = "../mame/"
 leaderboard_dir = "./leaderboard/"
+photo_frame_dir = "./leaderboard/photo_capture/work"
+num_photo_frames = 30
+dev_tty_prefix = "/dev/ttyACM*"
+photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
 
+# Cleanup work directory
+shutil.rmtree(photo_frame_dir, True)
+
+if (os.path.isfile("dev-mode")):
+   print "Override config for development."
+   dev_tty_prefix = "/dev/tty.usbmodem*"
+   photo_capture_cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
+   os.makedirs(photo_frame_dir)
+else:
+   tmp_dir = "/run/shm/mcor"
+   shutil.rmtree(tmp_dir, True)
+   os.makedirs(tmp_dir)
+   os.remove(photo_frame_dir)
+   os.symlink(tmp_dir, photo_frame_dir)
 #
 serial_devices = []
 #last_time = time.time()
@@ -26,21 +46,24 @@ def usage():
 #
 # Device interface
 #
-# TODO: Look at /dev/tty.* and try to open them
 def find_devices():
    global serial_devices
    for dev in serial_devices:
       dev.close()
    serial_devices = []
-   try:
-      dev_name = "/dev/tty.usbmodem12341"
-      serial_devices.append(serial.Serial(dev_name))
-   except:
-      print "Unable to open " + dev_name
+   potential_devices = glob.glob(dev_tty_prefix)
+   for dev_name in potential_devices:
+      try:
+         serial_devices.append(serial.Serial(dev_name))
+      except:
+         print "Unable to open " + dev_name
 
 def send_command(c):
    for dev in serial_devices:
       dev.write(c)
+
+def send_laser_enforcer():
+   send_command("LAS1:G\n")
 
 def send_laser(num):
    send_command("LAS1:" + "{0:x}\n".format(num))
@@ -58,7 +81,7 @@ def send_wave(num):
    send_command("WAV1:" + "{0:x}\n".format(num))
 
 def send_heartbeat(num):
-   send_command("BEAT1:" + "{0:x}\n".format(num))
+   send_command("BEAT1:" + "{0:x}\n".format(int(num)))
 
 #
 # Scoreboard
@@ -167,8 +190,7 @@ def start_capture():
    global capture_handle
    cwd = os.getcwd()
    os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
-   cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
-   capture_handle = subprocess.Popen(cmd.split(" "))
+   capture_handle = subprocess.Popen(photo_capture_cmd.split(" "))
    os.chdir(cwd)
    print "Capture started."
 
@@ -189,6 +211,18 @@ def save_player_face():
    os.chdir(cwd)
    start_capture()
 
+# Too lazy to manually deal with gstreamer install to get the max-files multifilesink option to work,
+# so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
+# so it should be quick
+def cleanup_old_photos():
+   files = filter(os.path.isfile, glob.glob(os.path.join(photo_frame_dir, "*.jpeg")))
+   files.sort(key=lambda x: os.path.getmtime(x))
+   num_del = len(files) - num_photo_frames
+   if (num_del <= 0):
+      return
+   for i in files[0:num_del]:
+      os.remove(i)
+
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
 # XXX wrap in a catchall to turn off everything that may be running, in case
@@ -197,8 +231,6 @@ def main(argv=None):
    #global last_time
    start_time = None
    last_beat = time.time()
-   # TODO: Find devices during runtime?
-   find_devices()
 
    if(argv is None):
       argv = sys.argv
@@ -222,68 +254,81 @@ def main(argv=None):
 
    print "Waiting for data..."
    while True:
-      if (gamerunning):
-         if start_time is None:
-             start_time = time.time() # safety
-         if time.time() - last_beat > 5:
-             send_heartbeat(time.time - start_time)
-             last_beat = time.time()
-         #if (time.time() - last_time > 0.5):
-         #   #send_laser(random.randint(1,511))
-         #   last_time = time.time()
-      else:
-         start_time = None
-         # turn off any laser that might be on
-         # XXX the laser controller should handle this to avoid leaving it on
-         #     when we break
-         send_laser(0)
+      try:
+         find_devices()
 
-      result = select.select([s],[],[],0.001)
-      if (len(result[0]) > 0):
-         msg = result[0][0].recv(80) # 10 bytes
+         cleanup_old_photos()
 
-         if (dump_udp):
-            print "%s | %s" %(dump_hex(msg), msg)
-
-         if (msg.startswith("Game start")):
-            gamerunning = True
-            start_time = time.time()
-            send_start()
-            start_capture()
-         if (msg.startswith("Game over")):
-            gamerunning = False
+         if (gamerunning):
+            if start_time is None:
+               start_time = time.time() # safety
+            if time.time() - last_beat > 5:
+               send_heartbeat(time.time() - start_time)
+               last_beat = time.time()
+            #if (time.time() - last_time > 0.5):
+            #   #send_laser(random.randint(1,511))
+            #   last_time = time.time()
+         else:
             start_time = None
-            send_end()
-            stop_capture()
-         if (msg.startswith("Player death")):
-            save_player_face()
-         if (msg.startswith("NewScores")):
-            if (parse_scoreboard(msg)):
-               print "NEW MUTANT SAVIOR!"
-         if (msg.startswith("WaveNum")):
-            # Watchpoint based events need gamerunning check
-            if (gamerunning):
-               wave_num = int(msg.split(":")[1])+1
-               send_wave(wave_num)
-               print "New Wave: " + str(wave_num)
-         if (msg.startswith("ScoreChange")):
-            # Watchpoint based events need gamerunning check
-            if (gamerunning):
-               score = msg.split(",")[1]
-               # print score
-         if (msg.startswith("HumanSaved")):
-            print "Human Saved!  Praise the Mutant!"
-         if (msg.startswith("HumanKilled")):
-            send_humankilled()
-            print "Human Killed!"
-         if (msg.startswith("GruntKilledByElectrode")):
-            print "Stupid Robot"
-         if (msg.startswith("EnforcerShot")):
-            # Watchpoint based events need gamerunning check
-            if (gamerunning):
-               # XXX send a laser here, but the controller must turn it of
-               # send_laser(random.randint(1,511))
-               print "Enforcer shot!"
+            # turn off any laser that might be on
+            # XXX the laser controller should handle this to avoid leaving it on
+            #     when we break
+            #send_laser(0)
+
+         result = select.select([s],[],[],0.001)
+         if (len(result[0]) > 0):
+            msg = result[0][0].recv(80) # 10 bytes
+
+            if (dump_udp):
+               print "%s | %s" %(dump_hex(msg), msg)
+
+            if (msg.startswith("Game start")):
+               gamerunning = True
+               start_time = time.time()
+               send_start()
+               start_capture()
+            if (msg.startswith("Game over")):
+               gamerunning = False
+               start_time = None
+               send_end()
+               time.sleep(3)
+               save_player_face()
+               stop_capture()
+            if (msg.startswith("Player death")):
+               pass
+            if (msg.startswith("NewScores")):
+               if (parse_scoreboard(msg)):
+                  print "NEW MUTANT SAVIOR!"
+            if (msg.startswith("WaveNum")):
+               # Watchpoint based events need gamerunning check
+               if (gamerunning):
+                  wave_num = int(msg.split(":")[1])+1
+                  send_wave(wave_num)
+                  print "New Wave: " + str(wave_num)
+            if (msg.startswith("ScoreChange")):
+               # Watchpoint based events need gamerunning check
+               if (gamerunning):
+                  score = msg.split(",")[1]
+                  # print score
+            if (msg.startswith("HumanSaved")):
+               print "Human Saved!  Praise the Mutant!"
+            if (msg.startswith("HumanKilled")):
+               send_humankilled()
+               print "Human Killed!"
+            if (msg.startswith("GruntKilledByElectrode")):
+               print "Stupid Robot"
+            if (msg.startswith("EnforcerShot")):
+               # Watchpoint based events need gamerunning check
+               if (gamerunning):
+                  # XXX send a laser here, but the controller must turn it of
+                  send_laser_enforcer()
+                  print "Enforcer shot!"
+      except Exception as inst:
+         print "Exception in user code:"
+         print '-'*60
+         traceback.print_exc(file=sys.stdout)
+         print '-'*60
+         pass
 
 if __name__ == "__main__":
    sys.exit(main())
