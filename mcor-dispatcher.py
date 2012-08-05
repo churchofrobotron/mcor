@@ -16,15 +16,25 @@ import traceback
 scores_extension = ".gif"
 mame_dir = "../mame/"
 leaderboard_dir = "./leaderboard/"
-photo_frame_dir = "./leaderboard/photo_capture/work/"
-num_photo_frames = 15
+photo_frame_dir = "./leaderboard/photo_capture/work"
+num_photo_frames = 30
 dev_tty_prefix = "/dev/ttyACM*"
 photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
+
+# Cleanup work directory
+shutil.rmtree(photo_frame_dir, True)
+
 if (os.path.isfile("dev-mode")):
    print "Override config for development."
    dev_tty_prefix = "/dev/tty.usbmodem*"
    photo_capture_cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
-
+   os.makedirs(photo_frame_dir)
+else:
+   tmp_dir = "/run/shm/mcor"
+   shutil.rmtree(tmp_dir, True)
+   os.makedirs(tmp_dir)
+   os.remove(photo_frame_dir)
+   os.symlink(tmp_dir, photo_frame_dir)
 #
 serial_devices = []
 #last_time = time.time()
@@ -202,7 +212,7 @@ def save_player_face():
 # so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
 # so it should be quick
 def cleanup_old_photos():
-   files = filter(os.path.isfile, glob.glob(photo_frame_dir + "*.jpeg"))
+   files = filter(os.path.isfile, glob.glob(os.path.join(photo_frame_dir, "*.jpeg")))
    files.sort(key=lambda x: os.path.getmtime(x))
    num_del = len(files) - num_photo_frames
    if (num_del <= 0):
@@ -278,9 +288,11 @@ def main(argv=None):
                gamerunning = False
                start_time = None
                send_end()
+               time.sleep(3)
+               save_player_face()
                stop_capture()
             if (msg.startswith("Player death")):
-               save_player_face()
+               pass
             if (msg.startswith("NewScores")):
                if (parse_scoreboard(msg)):
                   print "NEW MUTANT SAVIOR!"
