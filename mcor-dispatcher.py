@@ -280,7 +280,7 @@ def main(argv=None):
          result = select.select([s],[],[],0.001)
          if (len(result[0]) > 0):
             msg = result[0][0].recv(80) # 10 bytes
-            rebroadcast.sendto(msg, ("127.0.0.1", 2085))
+            rebroadcast.sendto(msg, ("192.168.0.165", 2085))
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
 
