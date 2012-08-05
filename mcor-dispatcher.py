@@ -16,11 +16,10 @@ import traceback
 scores_extension = ".gif"
 mame_dir = "../mame/"
 leaderboard_dir = "./leaderboard/"
-photo_frame_dir = "./leaderboard/photo_capture/work/"
+photo_frame_dir = "./leaderboard/photo_capture/work"
 num_photo_frames = 30
 dev_tty_prefix = "/dev/ttyACM*"
 photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
-photo_frame_dir = "./leaderboard/photo_capture/work/"
 
 # Cleanup work directory
 shutil.rmtree(photo_frame_dir, True)
@@ -212,7 +211,7 @@ def save_player_face():
 # so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
 # so it should be quick
 def cleanup_old_photos():
-   files = filter(os.path.isfile, glob.glob(photo_frame_dir + "*.jpeg"))
+   files = filter(os.path.isfile, glob.glob(os.join(photo_frame_dir, "*.jpeg")))
    files.sort(key=lambda x: os.path.getmtime(x))
    num_del = len(files) - num_photo_frames
    if (num_del <= 0):
