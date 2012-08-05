@@ -249,7 +249,7 @@ def main(argv=None):
 
    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
    print "Opening port %d" %(port)
-   s.bind(('127.0.0.1', port))
+   s.bind(('', port))
    s.setblocking(0)
 
    print "Waiting for data..."
