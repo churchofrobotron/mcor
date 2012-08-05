@@ -282,19 +282,19 @@ def main(argv=None):
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
 
-            if (msg.startswith("Game start")):
+            if (msg.startswith("GameStart")):
                gamerunning = True
                start_time = time.time()
                send_start()
                start_capture()
-            if (msg.startswith("Game over")):
+            if (msg.startswith("GameOver")):
                gamerunning = False
                start_time = None
                send_end()
                time.sleep(3)
                save_player_face()
                stop_capture()
-            if (msg.startswith("Player death")):
+            if (msg.startswith("PlayerDeath")):
                pass
             if (msg.startswith("NewScores")):
                if (parse_scoreboard(msg)):
