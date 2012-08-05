@@ -39,6 +39,8 @@
 #define INPUT_B 0
 #define INPUT_D 1
 
+#define OUTPUT_E 2
+
 // Which port does this button read from
 const uint8_t keyPort[NUM_BUTTONS] = { INPUT_B, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D };
 // Which bit from the input port should we check
@@ -51,21 +53,54 @@ const uint8_t keyIndex[NUM_BUTTONS] = { 0, 1, 0, 1, 2, 3, 2, 3, 4 };
 // transition to the new state.
 uint8_t debounce[NUM_BUTTONS] = {0};
 
+//output pins for left/right fans
+typedef struct port_pin
+{
+  uint8_t port;
+  uint8_t pin;
+} port_pin;
+
+const port_pin left_out={OUTPUT_E, 1<<0};
+const port_pin right_out={OUTPUT_E, 1<<1};
+
 int main(void)
 {
-   uint8_t values[2];
+  uint8_t values[3];
 	uint8_t i;
+  uint8_t temp;
 
 	// set for 16 MHz clock
 	CPU_PRESCALE(0);
 
-	// Configure all port B and port D pins as inputs with pullup resistors.
+	// Configure all port B and port D pins as inputs with pullup resistors
 	// See the "Using I/O Pins" page for details.
 	// http://www.pjrc.com/teensy/pins.html
+  //DDRD
 	DDRD = 0x00;
 	DDRB = 0x00;
 	PORTB = 0xFF;
 	PORTD = 0xFF;
+  DDRE=0x00;
+  PORTE=0xFF;
+
+  //set left/right pins to output low
+  if (left_out.port==OUTPUT_E)
+  {
+    DDRE|=left_out.pin;
+    PORTE&=~left_out.pin;
+  }
+  else
+  {//wtf
+  }
+
+  if (right_out.port==OUTPUT_E)
+  {
+    DDRE|=right_out.pin;
+    PORTE&=~right_out.pin;
+  }
+  else
+  {//wtf
+  }
 
 	// Initialize the USB, and then wait for the host to set configuration.
 	// If the Teensy is powered without a PC connected to the USB port,
@@ -86,6 +121,7 @@ int main(void)
 		// read all port B and port D pins
       values[0] = PINB;
       values[1] = PIND;
+      values[2] = PORTE;
 
       for (i=0; i<NUM_BUTTONS; i++)
       {
@@ -106,16 +142,33 @@ int main(void)
          {
             // Set key down
             keyboard_keys[keyIndex[i]] = key[i];
+            //turn on IO pin for left/right down
+            if (key[i]==KEY_S) {//left
+              values[left_out.port]|=left_out.pin;
+            }
+            if (key[i]==KEY_F) {//right
+              values[right_out.port]|=right_out.pin;
+            }
+
          } else {
             // If the key has been released for eight loop iterations, send keyup (if this key is currently marked as down)
-            if (debounce[i] == 0xFF)
-            {
-               // Set key up
-               if (keyboard_keys[keyIndex[i]] == key[i])
-                  keyboard_keys[keyIndex[i]] = 0;
-            }
+           if (debounce[i] == 0xFF)
+           {
+             // Set key up
+             if (keyboard_keys[keyIndex[i]] == key[i])
+               keyboard_keys[keyIndex[i]] = 0;
+             //turn off IO pin for left/right down
+             if (key[i]==KEY_S) {//left
+               values[left_out.port]&=~left_out.pin;
+             }
+             if (key[i]==KEY_F) {//right
+               values[right_out.port]&=~right_out.pin;
+             }
+           }
          }
       }
+      //set output ports to updated values
+      PORTE=values[2];
       // Send keyboard_keys and keyboard_modifier_keys to host pc
       usb_keyboard_send();
 	}
