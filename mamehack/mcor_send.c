@@ -21,6 +21,8 @@ void mcor_send_init(const char *ip_address, int port){
 	if ((mcor_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1){
 		perror("socket");
 	}
+   int broadcastEnable=1;
+   setsockopt(mcor_sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
 	memset((char *) &server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
