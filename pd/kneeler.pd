@@ -1,0 +1,14 @@
+#N canvas 663 160 450 300 10;
+#X obj 134 94 ctlin;
+#X obj 134 119 pack f f f;
+#X obj 134 163 route 1;
+#X msg 134 142 \$2 \$1;
+#X obj 134 186 != 0;
+#X obj 139 241 print;
+#X connect 0 0 1 0;
+#X connect 0 1 1 1;
+#X connect 0 2 1 2;
+#X connect 1 0 3 0;
+#X connect 2 0 4 0;
+#X connect 3 0 2 0;
+#X connect 4 0 5 0;
