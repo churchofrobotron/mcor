@@ -277,9 +277,10 @@ def main(argv=None):
             if (msg.startswith("Game over")):
                gamerunning = False
                start_time = None
+               send_end()
+               time.sleep(3)
                save_player_face()
                stop_capture()
-               send_end()
             if (msg.startswith("Player death")):
                pass
             if (msg.startswith("NewScores")):
