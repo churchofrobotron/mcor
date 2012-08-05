@@ -1,6 +1,3 @@
-// #include <Metro.h>
-// #include <Queue.h>
-
 #define WAVE_TYPE "WAV"
 #define KILLED_TYPE "HUMKIL"
 #define MY_ADDR "1"
@@ -13,7 +10,7 @@ String killedPreamble = KILLED_TYPE MY_ADDR SEPARATOR;
 #define KILLED_PIN 9
 const unsigned int baud = 9600;
 
-// // must be outside of function, http://arduino.cc/forum/index.php?topic=73177.0
+// must be outside of function, http://arduino.cc/forum/index.php?topic=73177.0
 static String command = "";
 const int killedInterval = 3000;       // 3 secs
 const int waveInterval = 5000;       // 5 secs
