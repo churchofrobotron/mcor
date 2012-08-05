@@ -252,6 +252,8 @@ def main(argv=None):
    s.bind(('', port))
    s.setblocking(0)
 
+   rebroadcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
    print "Waiting for data..."
    while True:
       try:
@@ -278,7 +280,7 @@ def main(argv=None):
          result = select.select([s],[],[],0.001)
          if (len(result[0]) > 0):
             msg = result[0][0].recv(80) # 10 bytes
-
+            rebroadcast.sendto(msg, ("127.0.0.1", 2085))
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
 
