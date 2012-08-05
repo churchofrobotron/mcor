@@ -62,6 +62,9 @@ def send_command(c):
    for dev in serial_devices:
       dev.write(c)
 
+def send_laser_enforcer():
+   send_command("LAS1:G\n")
+
 def send_laser(num):
    send_command("LAS1:" + "{0:x}\n".format(num))
 
@@ -270,7 +273,7 @@ def main(argv=None):
             # turn off any laser that might be on
             # XXX the laser controller should handle this to avoid leaving it on
             #     when we break
-            send_laser(0)
+            #send_laser(0)
 
          result = select.select([s],[],[],0.001)
          if (len(result[0]) > 0):
@@ -318,7 +321,7 @@ def main(argv=None):
                # Watchpoint based events need gamerunning check
                if (gamerunning):
                   # XXX send a laser here, but the controller must turn it of
-                  send_laser(random.randint(1,511))
+                  send_laser_enforcer()
                   print "Enforcer shot!"
       except Exception as inst:
          print "Exception in user code:"
