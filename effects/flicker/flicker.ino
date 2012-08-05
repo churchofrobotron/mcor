@@ -234,5 +234,5 @@ void loop()
   if (on) {
     effect_loop();
   }
-  //delay(10);
+  delay(10);
 }
