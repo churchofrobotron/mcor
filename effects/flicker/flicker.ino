@@ -64,14 +64,8 @@ int parseCommand(const String &cmd)
   if (cmd.startsWith(beatPreamble)) {
     return BEAT_COMMAND;
   }
+  // ignore the number part of the command  
   return NULL;
-//   // ignore the number part of the command  
-//   String num = cmd.substring(preamble.length(), preamble.length() + 4);
-//   char buf[4];
-//   num.toCharArray(buf, 4); //up to 4 characters
-//   unsigned int mask;
-//   sscanf(buf, "%d", &mask);
-//   return mask;
 }
 
 String getCommand()
@@ -167,15 +161,18 @@ void diag(int i)
 {
   Serial.println("diag");
   Serial.println(i);
+  Serial.println("onbase");
   Serial.println(effects[i].onbase);
-  //Serial.println(effects[i].onmin);
+  Serial.println("onmax");
   Serial.println(effects[i].onmax);
+  Serial.println("lenbase");
   Serial.println(effects[i].lenbase);
+  Serial.println("lenmax");
   Serial.println(effects[i].lenmax);
+  Serial.println("gapbase");
   Serial.println(effects[i].gapbase);
+  Serial.println("gapmin");
   Serial.println(effects[i].gapmin);
-  //Serial.println(effects[i].offmin);
-  //Serial.println(effects[i].offmax);
   Serial.println();
 }
 
@@ -227,7 +224,6 @@ void loop()
     Serial.println("beat");
   }
 
-  Serial.println(millis() - lastBeat);
   if (millis() - lastBeat > beatInterval) {
     // we didn't get a beat, did the game die?
     Serial.println("no beat");
@@ -238,5 +234,5 @@ void loop()
   if (on) {
     effect_loop();
   }
-  delay(100);
+  //delay(10);
 }

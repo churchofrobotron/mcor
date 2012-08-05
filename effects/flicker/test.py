@@ -10,5 +10,8 @@ addr = '1'
 
 ser = serial.Serial(dev)
 
-#ser.write('%s%s:%s\n' % (beat_event, addr, 2))
 ser.write('%s%s:%s\n' % (start_event, addr, 2))
+while True:
+    ser.write('%s%s:%s\n' % (beat_event, addr, 2))
+    time.sleep(5)
+
