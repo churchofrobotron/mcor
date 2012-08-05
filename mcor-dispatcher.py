@@ -17,7 +17,7 @@ scores_extension = ".gif"
 mame_dir = "../mame/"
 leaderboard_dir = "./leaderboard/"
 photo_frame_dir = "./leaderboard/photo_capture/work/"
-num_photo_frames = 15
+num_photo_frames = 30
 dev_tty_prefix = "/dev/ttyACM*"
 photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
 if (os.path.isfile("dev-mode")):
@@ -277,10 +277,11 @@ def main(argv=None):
             if (msg.startswith("Game over")):
                gamerunning = False
                start_time = None
-               send_end()
-               stop_capture()
-            if (msg.startswith("Player death")):
                save_player_face()
+               stop_capture()
+               send_end()
+            if (msg.startswith("Player death")):
+               pass
             if (msg.startswith("NewScores")):
                if (parse_scoreboard(msg)):
                   print "NEW MUTANT SAVIOR!"
