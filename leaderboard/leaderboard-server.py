@@ -12,10 +12,12 @@ if __name__ == '__main__':
 	else:
 		port = DEFAULT_PORT
 
-	# Only bind on loopback.  This requires the leaderboard server to be running 
+	# Only bind on loopback.  This requires the leaderboard server to be running
 	# on the same machine physically connected to the projector.
 	# Change as needed.
-	server_address = ('127.0.0.1', port)
+
+   # Bind to all!  Scores for everybody!
+	server_address = ('', port)
 
 	server = HTTPServer(server_address, SimpleHTTPRequestHandler)
 	print('Starting server on port %d, use <Ctrl-C> to stop' %(port))
