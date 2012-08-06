@@ -33,7 +33,10 @@ else:
    tmp_dir = "/run/shm/mcor"
    shutil.rmtree(tmp_dir, True)
    os.makedirs(tmp_dir)
-   os.remove(photo_frame_dir)
+   try:
+      os.remove(photo_frame_dir)
+   except:
+      pass
    os.symlink(tmp_dir, photo_frame_dir)
 #
 serial_devices = []
@@ -214,8 +217,8 @@ def save_player_face():
 # Too lazy to manually deal with gstreamer install to get the max-files multifilesink option to work,
 # so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
 # so it should be quick
-def cleanup_old_photos():
-   files = filter(os.path.isfile, glob.glob(os.path.join(photo_frame_dir, "*.jpeg")))
+def cleanup_old_photos(ext):
+   files = filter(os.path.isfile, glob.glob(os.path.join(photo_frame_dir, ext)))
    files.sort(key=lambda x: os.path.getmtime(x))
    num_del = len(files) - num_photo_frames
    if (num_del <= 0):
@@ -259,7 +262,8 @@ def main(argv=None):
       try:
          find_devices()
 
-         cleanup_old_photos()
+         cleanup_old_photos("*.jpeg")
+         cleanup_old_photos("*.png")
 
          if (gamerunning):
             if start_time is None:
@@ -280,7 +284,7 @@ def main(argv=None):
          result = select.select([s],[],[],0.001)
          if (len(result[0]) > 0):
             msg = result[0][0].recv(80) # 10 bytes
-            rebroadcast.sendto(msg, ("192.168.0.165", 2085))
+            rebroadcast.sendto(msg, ("192.168.0.67", 2085))
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
 
@@ -297,7 +301,7 @@ def main(argv=None):
                save_player_face()
                stop_capture()
             if (msg.startswith("PlayerDeath")):
-               pass
+               print "PlayerDeath!"
             if (msg.startswith("NewScores")):
                if (parse_scoreboard(msg)):
                   print "NEW MUTANT SAVIOR!"
