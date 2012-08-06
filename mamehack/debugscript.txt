@@ -1,10 +1,10 @@
 mcor_init
-mcor_send "Game boot"
-bp 276c,1,{mcor_send "Game start"; g}
+mcor_send "GameBoot"
+bp 276c,1,{mcor_send "GameStart"; g}
 wp bded,1,w,1,{mcor_send "WaveNum:%x",b@bded; g}
-bp 30fe,1,{mcor_send "Player death"; g}
-bp 3112,1,{mcor_send "Game over"; b@b3ea=FF; b@b3eb=FF; b@b3ec=FF; g}
-bp 3130,1,{mcor_send "Still trying"; g}
+bp 30fe,1,{mcor_send "PlayerDeath"; g}
+bp 3112,1,{mcor_send "GameOver"; b@b3ea=FF; b@b3eb=FF; b@b3ec=FF; g}
+bp 3130,1,{mcor_send "StillTrying"; g}
 bp e727,1,{mcor_dumpscores; mcor_send "NewScores,Latest,%x %x %x,%x",b@b3ea,b@b3eb,b@b3ec,d@bde4; g}
 wp bde4,8,w,1,{mcor_send "ScoreChange,%x",d@bde4; g}
 bp 036a,1,{mcor_send "HumanSaved"; g}

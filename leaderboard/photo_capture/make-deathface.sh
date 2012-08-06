@@ -1,3 +1,4 @@
+date
 cd work
 (ls -t|head -n 30;ls)|sort|uniq -u|xargs rm
 i=0; for file in *.jpeg; do mv "$file" $(printf "image_%0.3d.jpeg" $i); i=$((i+1)); done
@@ -6,3 +7,4 @@ convert -delay 10 -loop 0 *.jpeg deathface.gif
 cd ..
 mv work/deathface.gif .
 rm work/*
+date

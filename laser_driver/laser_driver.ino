@@ -23,7 +23,7 @@ String preamble=MY_TYPE MY_ADDR SEPARATOR;
 String beat_pre=BEAT_TYPE BEAT_ADDR SEPARATOR;
 String command;
 
-#define DEBUG
+//#define DEBUG
 
 const unsigned int num_lasers=10;
 
