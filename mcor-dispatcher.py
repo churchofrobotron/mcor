@@ -182,7 +182,7 @@ def parse_scoreboard(msg):
        return False
 
 # We should save each death face to last_death.gif
-capture_handle = cv.CaptureFromCAM(-1)
+capture_handle = None
 capture_images = []
 last_capture = None
 capturing = False
@@ -192,19 +192,24 @@ def capture_if_needed():
       return
    if ((last_capture != None) and (time.time() - last_capture < capture_delay)):
       return
-   frame = cv.QueryFrame(capture)
+   frame = cv.QueryFrame(capture_handle)
    mat = cv.GetMat(frame)
    a = np.asarray(mat[:,:])
-   images.append(np.copy(a))
-   if (len(images) > num_photo_frames):
-      del images[0]
+   capture_images.append(np.copy(a))
+   if (len(capture_images) > num_photo_frames):
+      del capture_images[0]
 
 def start_capture():
+   global capturing
+   global capture_handle
+   if (capture_handle == None):
+      capture_handle = cv.CaptureFromCAM(-1)
    capturing = True
    capture_if_needed()
    print "Capture started."
 
 def stop_capture():
+   global capturing
    capturing = False
    last_capture = None
    print "Capture ended."
@@ -213,7 +218,7 @@ def save_player_face():
    print "Saving deathface"
    leaderboard_photocapture = os.path.join(leaderboard_dir, "photo_capture")
    face_path = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
-   images2gif.writeGif(face_path, images, duration=0.5, dither=0)
+   images2gif.writeGif(face_path, capture_images, duration=0.5, dither=0)
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
