@@ -11,33 +11,28 @@ import os
 import shutil
 import glob
 import traceback
+import images2gif
+import numpy as np
+import PIL
+import cv
 
 # CONFIG
 scores_extension = ".gif"
 mame_dir = "../mame/"
 leaderboard_dir = "./leaderboard/"
-photo_frame_dir = "./leaderboard/photo_capture/work"
-num_photo_frames = 30
+frames_per_second = 5.0
+seconds_to_capture = 6.0
+post_game_over_seconds = 3.0
 dev_tty_prefix = "/dev/ttyACM*"
-photo_capture_cmd = "gst-launch -vt autovideosrc ! jpegenc ! image/jpeg, framerate=(fraction)5/1 ! multifilesink location=work/output-%05d.jpeg"
-
-# Cleanup work directory
-shutil.rmtree(photo_frame_dir, True)
 
 if (os.path.isfile("dev-mode")):
    print "Override config for development."
    dev_tty_prefix = "/dev/tty.usbmodem*"
-   photo_capture_cmd = "/usr/bin/gst-launch -vt videotestsrc ! video/x-raw-yuv ! jpegenc ! image/jpeg,width=(int)320,height=(int)240,framerate=(fraction)5/1,pixel-aspect-ratio=(fraction)1/1 ! multifilesink location=work/output-%05d.jpeg"
-   os.makedirs(photo_frame_dir)
-else:
-   tmp_dir = "/run/shm/mcor"
-   shutil.rmtree(tmp_dir, True)
-   os.makedirs(tmp_dir)
-   try:
-      os.remove(photo_frame_dir)
-   except:
-      pass
-   os.symlink(tmp_dir, photo_frame_dir)
+
+# Random globals
+capture_delay = 1.0 / frames_per_second
+num_photo_frames = frames_per_second * seconds_to_capture
+
 #
 serial_devices = []
 #last_time = time.time()
@@ -187,44 +182,38 @@ def parse_scoreboard(msg):
        return False
 
 # We should save each death face to last_death.gif
-capture_handle = None
+capture_handle = cv.CaptureFromCAM(-1)
+capture_images = []
+last_capture = None
+capturing = False
+
+def capture_if_needed():
+   if (capturing == False):
+      return
+   if ((last_capture != None) and (time.time() - last_capture < capture_delay)):
+      return
+   frame = cv.QueryFrame(capture)
+   mat = cv.GetMat(frame)
+   a = np.asarray(mat[:,:])
+   images.append(np.copy(a))
+   if (len(images) > num_photo_frames):
+      del images[0]
 
 def start_capture():
-   global capture_handle
-   cwd = os.getcwd()
-   os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
-   capture_handle = subprocess.Popen(photo_capture_cmd.split(" "))
-   os.chdir(cwd)
+   capturing = True
+   capture_if_needed()
    print "Capture started."
 
 def stop_capture():
-   global capture_handle
-   if (capture_handle == None):
-      return
-   capture_handle.kill()
-   capture_handle = None
+   capturing = False
+   last_capture = None
    print "Capture ended."
 
 def save_player_face():
-   stop_capture()
-   cwd = os.getcwd()
-   os.chdir(os.path.join(leaderboard_dir, "photo_capture"))
    print "Saving deathface"
-   subprocess.call(['/bin/sh', 'make-deathface.sh'])
-   os.chdir(cwd)
-   start_capture()
-
-# Too lazy to manually deal with gstreamer install to get the max-files multifilesink option to work,
-# so let's just clear out old photos in our main loop, this should be running against a tmpfs mount
-# so it should be quick
-def cleanup_old_photos(ext):
-   files = filter(os.path.isfile, glob.glob(os.path.join(photo_frame_dir, ext)))
-   files.sort(key=lambda x: os.path.getmtime(x))
-   num_del = len(files) - num_photo_frames
-   if (num_del <= 0):
-      return
-   for i in files[0:num_del]:
-      os.remove(i)
+   leaderboard_photocapture = os.path.join(leaderboard_dir, "photo_capture")
+   face_path = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
+   images2gif.writeGif(face_path, images, duration=0.5, dither=0)
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
@@ -261,9 +250,7 @@ def main(argv=None):
    while True:
       try:
          find_devices()
-
-         cleanup_old_photos("*.jpeg")
-         cleanup_old_photos("*.png")
+         capture_if_needed()
 
          if (gamerunning):
             if start_time is None:
@@ -297,7 +284,10 @@ def main(argv=None):
                gamerunning = False
                start_time = None
                send_end()
-               time.sleep(3)
+               start = time.time()
+               while (time.time() - start < post_game_over_seconds):
+                  capture_if_needed()
+                  time.sleep(capture_delay * 0.5)
                save_player_face()
                stop_capture()
             if (msg.startswith("PlayerDeath")):
