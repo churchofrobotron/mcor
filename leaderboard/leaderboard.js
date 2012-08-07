@@ -8,7 +8,7 @@ var leaderboardLastModified = '';
 function pageInit(){
 	fetchAndUpdateLeaderboard();	//bootstrap initial state
 	window.setInterval(fetchAndUpdateLeaderboard, 250);	//TODO: Dial this back when working (for faster updates)
-	window.setInterval(showNextEntry, 2000);
+	window.setInterval(showNextEntry, 18000);
 	window.setInterval(rotateBorderPallette, 200);
 }
 
