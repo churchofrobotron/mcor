@@ -1,0 +1,34 @@
+
+How to use this?
+
+1) Run the simple embedded python web server:
+   $ python leaderboard-server.py
+
+2) Point a browser at http://localhost:12084/leaderboard.html
+
+3) Change the data/leaderboard.txt file and place images in data/ subdir.
+
+----------------------------------------------------------------------------------
+
+image is expected to be 500x400 currently....we can change this.
+
+imagemagick can simply do the image stuff:
+mogrify -resize 500x400^ -gravity center -extent 500x400 -colorspace gray -colors 2 -normalize * 
+(and of course this is tweakable)
+
+----------------------------------------------------------------------------------
+leaderboard file format:
+
+Each line has 3 comma delimited fields:
+initials,score,image filename
+
+The file should have the most recent entry at the top of the file, with later
+dated entries following below.  The "latest" entry being at the top allows us to 
+immediately show the last hero upon file update.
+
+leaderboard file notes:
+* The entries do not have to be sorted by score but will be displayed that way in the leaderboard.
+* Remember that initials are not unique -- I recommend using some hash of the camera file 
+  when naming the files.
+* The image file should be written before the leaderboard file is written.
+* I recommend we backup/version every instance of the leaderboard.txt (which should correspond to each game end)
