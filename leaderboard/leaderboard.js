@@ -58,7 +58,7 @@ function parseDataFile(fileContent){
 		}
 	}
 	leaders.sort(function(a,b){ return b['score'] - a['score'] });
-	leaders = leaders.slice(0, 20, leaders);
+//	leaders = leaders.slice(0, 20, leaders);
 	currentLeader = $.inArray(current, leaders);
 	//alert('last updated leader is in slot ' + currentLeader);
 	showCurrentEntry();
@@ -92,6 +92,8 @@ function rotateBorderPallette(){
 
 function nextColorForId(itemId){
 	currentColor = $(itemId).css('border-color');
+    if (currentColor == "")
+	currentColor = $(itemId).css('border-left-color');
 	next = nextColor(currentColor);
 	$(itemId).css('border-color', next);
 }
@@ -102,9 +104,10 @@ function nextColor(current){
 		if(nextIndex >= colors.length){
 			nextIndex = 0;
 		}
+	    
 		if(colors[i] == current){
 			return colors[nextIndex];
 		}
 	}
-	 return colors[0];
+	 return "nathan";
 }
