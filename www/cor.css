@@ -126,3 +126,13 @@ body {
 	color: cyan;
 }
 
+.cor_text_block {
+	display: block;
+	margin-top:  1em;
+}
+
+.cor_text_block_header {
+	display: block;
+	margin-top:  1em;
+   color: red;
+}
