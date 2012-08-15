@@ -1,3 +1,4 @@
+
 # Church of Robotron Event Dispatcher
 import sys
 import select
@@ -14,7 +15,7 @@ import traceback
 import images2gif
 import numpy as np
 import PIL
-import cv
+#import cv
 
 # CONFIG
 scores_extension = ".gif"
@@ -111,8 +112,8 @@ def csv_it(values):
     return res
 
 def scoreboard_line(f, initials, score):
-   if (len(initials.strip()) > 0):
-      f.write(csv_it([initials, score, initials.strip() + "_" + str(score) + scores_extension])+"\n")
+   #if (len(initials.strip()) > 0):
+   f.write(csv_it([initials, score, initials.strip() + "_" + str(score) + scores_extension])+"\n")
 
 def parse_hex_initials(inits):
    if (inits.strip() == "FF FF FF"):
@@ -127,12 +128,13 @@ def parse_hex_initials(inits):
    return res
 
 def parse_scoreboard(msg):
+    print "scoreboard!"
     f = open(os.path.join(mame_dir, "nvram/robotron/nvram"), "r")
 
     leaderboard_data = os.path.join(leaderboard_dir, "data")
     leaderboard_photocapture = os.path.join(leaderboard_dir, "photo_capture")
 
-    leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
+    scores_tuples = []
 
     # Combine nibbles in values array
     values = []
@@ -146,7 +148,7 @@ def parse_scoreboard(msg):
     items = msg.split(",")
     recent_initials = (parse_hex_initials(items[2])).strip()
     recent_score = int(items[3])
-    scoreboard_line(leaderboard, recent_initials, recent_score)
+    scores_tuples.append((recent_initials, recent_score))
 
     source = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
     dest = os.path.join(leaderboard_data, recent_initials.strip() + "_" + str(items[3]) + scores_extension)
@@ -159,15 +161,58 @@ def parse_scoreboard(msg):
     # GC is stored a bit funny because you can optionally enter a 20 digit initial
     savior_initials = get_initials(values, 0x99).strip()
     savior_score = get_score(values, 0xB0)
-    scoreboard_line(leaderboard, savior_initials, savior_score)
+    scores_tuples.append((savior_initials, savior_score))
 
     # Get rest of scores
     offset = 0xB4
     while (offset < 0x1FD):
-       scoreboard_line(leaderboard, get_initials(values, offset), get_score(values, offset+3))
+       scores_tuples.append((get_initials(values, offset), get_score(values, offset+3)))
        offset = offset + 7
-    leaderboard.close()
     f.close()
+
+    # Write out the tuples unprocessed
+    #    leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
+    #for scores in scores_tuples:
+    #   scoreboard_line(leaderboard, scores[0], scores[1])
+    #leaderboard.close()
+
+    # Write out the tuples with one initial and highest score for that initial (most recent player first)
+    #    unique_scores = {}
+    #for scores in scores_tuples:
+    #   if scores[0] not in unique_scores:
+    #      print "First blood: " + scores[0]
+    #      unique_scores[scores[0]] = scores[1]
+    #    else:
+    #       if scores[1] > unique_scores[scores[0]]:
+    #          print "Second blood" + scores[0]
+    #          unique_scores[scores[0]] = scores[1]
+
+    # unique_scores[recent_initials] = recent_score
+    # leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
+    # scoreboard_line(leaderboard, recent_initials, recent_score)
+    # for i in unique_scores.keys():
+    #    print i
+    #    if (i != recent_initials):
+    #       scoreboard_line(leaderboard, i, unique_scores[i])
+    #    else:
+    #       print "recent:" + i
+    # leaderboard.close()
+
+    unique_scores = {}
+    for scores in scores_tuples:
+       key = scores[0] + str(scores[1])
+       if key not in unique_scores:
+          unique_scores[key] = scores
+
+    leaderboard = open(os.path.join(leaderboard_data, "leaderboard.txt"), "w")
+    scoreboard_line(leaderboard, recent_initials, recent_score)
+    recent_key = recent_initials + str(recent_score)
+    for i in unique_scores.keys():
+       score = unique_scores[i]
+       if (i != recent_key):
+          scoreboard_line(leaderboard, score[0], score[1])
+    leaderboard.close()
+
 
     cwd = os.getcwd()
     os.chdir(leaderboard_dir)
@@ -182,7 +227,7 @@ def parse_scoreboard(msg):
        return False
 
 # We should save each death face to last_death.gif
-capture_handle = cv.CaptureFromCAM(-1)
+# capture_handle = cv.CaptureFromCAM(-1)
 capture_images = []
 last_capture = None
 capturing = False
@@ -220,6 +265,9 @@ dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 # XXX wrap in a catchall to turn off everything that may be running, in case
 #     of unexpected error
 def main(argv=None):
+
+   parse_scoreboard("NewScores,Recent,41 41 41,12345")
+
    #global last_time
    start_time = None
    last_beat = time.time()

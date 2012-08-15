@@ -10,3 +10,5 @@ Rebuild mame
 Install imagemagick
 Install http://www.pjrc.com/teensy/49-teensy.rules
 http://souriguha.wordpress.com/2011/03/08/how-to-solve-problem-with-thinkpadkslowd-kworker-on-linux-kernel-2-35-2-36/
+Install OpenCV
+Install OpenCV python interface

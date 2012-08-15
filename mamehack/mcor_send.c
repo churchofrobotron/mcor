@@ -22,7 +22,8 @@ void mcor_send_init(const char *ip_address, int port){
 		perror("socket");
 	}
    int broadcastEnable=1;
-   setsockopt(mcor_sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+   int res = setsockopt(mcor_sock, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+   printf("setsockopt:  %d\n", res);
 	memset((char *) &server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
