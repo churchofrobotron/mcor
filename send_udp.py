@@ -2,8 +2,8 @@ import sys
 import select
 import socket
 
-UDP_IP = "127.0.0.1"
-UDP_PORT = 2084
+UDP_IP = ""
+UDP_PORT = 20666
 
 MESSAGE = sys.argv[1]
 
