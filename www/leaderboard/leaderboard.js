@@ -8,7 +8,7 @@ var leaderboardLastModified = '';
 function pageInit(){
 	fetchAndUpdateLeaderboard();	//bootstrap initial state
 	window.setInterval(fetchAndUpdateLeaderboard, 250);	//TODO: Dial this back when working (for faster updates)
-	window.setInterval(showNextEntry, 18000);
+	window.setInterval(showNextEntry, 2000);
 	window.setInterval(rotateBorderPallette, 200);
 }
 
@@ -58,7 +58,7 @@ function parseDataFile(fileContent){
 		}
 	}
 	leaders.sort(function(a,b){ return b['score'] - a['score'] });
-//	leaders = leaders.slice(0, 20, leaders);
+	leaders = leaders.slice(0, 20, leaders);
 	currentLeader = $.inArray(current, leaders);
 	//alert('last updated leader is in slot ' + currentLeader);
 	showCurrentEntry();
@@ -92,8 +92,6 @@ function rotateBorderPallette(){
 
 function nextColorForId(itemId){
 	currentColor = $(itemId).css('border-color');
-    if (currentColor == "")
-	currentColor = $(itemId).css('border-left-color');
 	next = nextColor(currentColor);
 	$(itemId).css('border-color', next);
 }
@@ -104,10 +102,9 @@ function nextColor(current){
 		if(nextIndex >= colors.length){
 			nextIndex = 0;
 		}
-	    
 		if(colors[i] == current){
 			return colors[nextIndex];
 		}
 	}
-	 return "nathan";
+	 return colors[0];
 }
