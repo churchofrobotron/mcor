@@ -92,6 +92,8 @@ function rotateBorderPallette(){
 
 function nextColorForId(itemId){
 	currentColor = $(itemId).css('border-color');
+    if (currentColor == "")
+        currentColor = $(itemId).css('border-left-color');
 	next = nextColor(currentColor);
 	$(itemId).css('border-color', next);
 }
