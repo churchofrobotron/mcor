@@ -16,6 +16,8 @@ body {
 /*	overflow: hidden; */
 }
 
+ul { list-style-type: none; }
+
 .red {
 	color: red;
 }
