@@ -127,3 +127,6 @@ body {
 	color: cyan;	
 }
 
+.paginate_enabled_next {
+	cursor:pointer;
+}
