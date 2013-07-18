@@ -10,3 +10,15 @@ Rebuild mame
 Install imagemagick
 Install http://www.pjrc.com/teensy/49-teensy.rules
 http://souriguha.wordpress.com/2011/03/08/how-to-solve-problem-with-thinkpadkslowd-kworker-on-linux-kernel-2-35-2-36/
+
+
+(Vaguely latest, was able to get this going in a vm right quick.)
+Debian Squeeze
+unzip mame146s.zip to mame
+unzip mame.zip
+apt-get install build-essential libsdl-ttf2.0-dev libgtk-2.0-dev x11proto-xinerama-dev libgconf2-dev python-opencv supervisor nvidia-glx
+git clone https://github.com/breedx2/mcor.git
+cp mcor/etc/mcor.conf /etc/supervisor/conf.d/
+cp mcor/etc/49-teensy.rules /etc/udev/rules.d/
+cp mcor/etc/10-readerboard.rules /etc/udev/rules.d/
+mkdir mcor/leaderboard/photo_capture
