@@ -20,6 +20,7 @@ def main(argv=None):
 	port = int(argv[1])
 
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	print "Opening port %d" %(port)
 	s.bind(("", port))
 	s.setblocking(0)
