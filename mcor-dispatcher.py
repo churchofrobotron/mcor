@@ -15,15 +15,17 @@ import images2gif
 import numpy as np
 import PIL
 import cv
+import datetime
 
 # CONFIG
 scores_extension = ".gif"
-mame_dir = "../mame/"
+mame_dir = "../mame153/"
 leaderboard_dir = "./leaderboard/"
 frames_per_second = 5.0
 seconds_to_capture = 6.0
 post_game_over_seconds = 3.0
 dev_tty_prefix = "/dev/ttyACM*"
+altar_id = "OG";
 
 if (os.path.isfile("dev-mode")):
    print "Override config for development."
@@ -149,7 +151,8 @@ def parse_scoreboard(msg):
     scoreboard_line(leaderboard, recent_initials, recent_score)
 
     source = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
-    dest = os.path.join(leaderboard_data, recent_initials.strip() + "_" + str(items[3]) + scores_extension)
+    filename_only = recent_initials.strip() + "_" + str(items[3]) + "_" + datetime.datetime.now().isoformat() + "_" + altar_id + scores_extension
+    dest = os.path.join(leaderboard_data, filename_only)
     try:
        shutil.move(source, dest)
     except:
@@ -169,10 +172,11 @@ def parse_scoreboard(msg):
     leaderboard.close()
     f.close()
 
-    cwd = os.getcwd()
-    os.chdir(leaderboard_dir)
-    subprocess.call(['./copy_and_save_leaderboard.sh'])
-    os.chdir(cwd)
+    # Don't do this anymore
+    # cwd = os.getcwd()
+    # os.chdir(leaderboard_dir)
+    # subprocess.call(['./copy_and_save_leaderboard.sh'])
+    # os.chdir(cwd)
 
     print "Scoreboard written."
 
@@ -194,7 +198,9 @@ def capture_if_needed():
       return
    frame = cv.QueryFrame(capture_handle)
    mat = cv.GetMat(frame)
-   a = np.asarray(mat[:,:])
+   smallerImage = cv.CreateImage( (320, 200), frame.depth, frame.nChannels)
+   cv.Resize(frame, smallerImage)
+   a = np.asarray(smallerImage[:,:])
    capture_images.append(np.copy(a))
    if (len(capture_images) > num_photo_frames):
       del capture_images[0]
@@ -203,7 +209,7 @@ def start_capture():
    global capturing
    global capture_handle
    if (capture_handle == None):
-      capture_handle = cv.CaptureFromCAM(-1)
+      capture_handle = cv.CaptureFromCAM(0)
    capturing = True
    capture_if_needed()
    print "Capture started."
@@ -245,16 +251,17 @@ def main(argv=None):
    gamerunning = False
 
    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+   s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
    print "Opening port %d" %(port)
    s.bind(('', port))
    s.setblocking(0)
-
    rebroadcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
    print "Waiting for data..."
    while True:
       try:
-         find_devices()
+         #find_devices()
          capture_if_needed()
 
          if (gamerunning):
@@ -279,6 +286,8 @@ def main(argv=None):
             rebroadcast.sendto(msg, ("192.168.0.67", 2085))
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
+
+            print msg
 
             if (msg.startswith("GameStart")):
                gamerunning = True
