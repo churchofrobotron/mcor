@@ -1,8 +1,8 @@
-@font-face {  
-	font-family: "robotron";  
-	src: url( /location/of/font/FontFileName.eot ); /* IE */  
-	src: local("ROBOTRON"), url( ROBOTRON.TTF ) format("truetype"); /* non-IE */  
-}  
+@font-face {
+	font-family: "robotron";
+	src: url( /location/of/font/FontFileName.eot ); /* IE */
+	src: local("ROBOTRON"), url( ROBOTRON.TTF ) format("truetype"); /* non-IE */
+}
 
 
 body {
@@ -79,11 +79,11 @@ body {
 }
 
 #innermiddle {
-	margin-top: 25px;
+	margin-top: 5px;
 }
 
 #deathface1 {
-	margin-top:  75px;
+	margin-top:  25px;
 	margin-bottom:  25px;
 	margin-left: auto;
 	margin-right: auto;
@@ -91,8 +91,8 @@ body {
 	background-repeat: no-repeat;
 	background-position: center center;
 	background-size: 100%;
-	width: 400px;
-	height: 320px;
+	width: 312px;
+	height: 250px;
 	border: solid pink 3px;
 }
 
@@ -100,30 +100,27 @@ body {
 	height: 100%;
 }
 
-#leftscores {
+.scores
+{
+	line-height: 33px;
 	color: red;
-	float: left;
 	/*border: solid  blue 1px;*/
 	height:  100%;
-	font-size: 22px;
+	font-size: 21px;
 	margin-top: 100px;
-	line-height: 50px;
-	text-align: left;
 	margin-left:  10px;
 }
 
-#rightscores {
-	color: red;
-	float: right;
-	/*border: solid  blue 1px;*/
-	height:  100%;
-	font-size: 22px;
-	line-height: 50px;
-	margin-top: 100px;
-	margin-right: 10px;
+#leftscores {
+	float: left;
+	text-align: left;
 }
 
-.currentslot { 
-	color: cyan;	
+#rightscores {
+	float: right;
+}
+
+.currentslot {
+	color: cyan;
 }
 
