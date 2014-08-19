@@ -172,11 +172,7 @@ def parse_scoreboard(msg):
     leaderboard.close()
     f.close()
 
-    # Don't do this anymore
-    # cwd = os.getcwd()
-    # os.chdir(leaderboard_dir)
-    # subprocess.call(['./copy_and_save_leaderboard.sh'])
-    # os.chdir(cwd)
+    # TODO: Submit to scoreboard server.
 
     print "Scoreboard written."
 
@@ -256,12 +252,12 @@ def main(argv=None):
    print "Opening port %d" %(port)
    s.bind(('', port))
    s.setblocking(0)
-   rebroadcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
    print "Waiting for data..."
    while True:
       try:
-         #find_devices()
+         # Commented out for quick VR hack, we'll need to re-enable this for effects.
+         # TODO: find_devices()
          capture_if_needed()
 
          if (gamerunning):
@@ -283,11 +279,8 @@ def main(argv=None):
          result = select.select([s],[],[],0.001)
          if (len(result[0]) > 0):
             msg = result[0][0].recv(80) # 10 bytes
-            rebroadcast.sendto(msg, ("192.168.0.67", 2085))
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
-
-            print msg
 
             if (msg.startswith("GameStart")):
                gamerunning = True
