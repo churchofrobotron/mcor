@@ -15,15 +15,21 @@ import images2gif
 import numpy as np
 import PIL
 import cv
+import datetime
+import requests
+import datetime
 
 # CONFIG
 scores_extension = ".gif"
-mame_dir = "../mame/"
+mame_dir = "../mame_cor/"
 leaderboard_dir = "./leaderboard/"
-frames_per_second = 5.0
-seconds_to_capture = 6.0
+frames_per_second = 4.0
+seconds_to_capture = 4.0
 post_game_over_seconds = 3.0
 dev_tty_prefix = "/dev/ttyACM*"
+altar_id = "WINDOW";
+scoreboard_url = "http://192.168.1.10:12084/leaderboard/"
+scoreboard_url = "http://10.0.1.20:12084/leaderboard/"
 
 if (os.path.isfile("dev-mode")):
    print "Override config for development."
@@ -80,6 +86,9 @@ def send_wave(num):
 
 def send_heartbeat(num):
    send_command("BEAT1:" + "{0:x}\n".format(int(num)))
+
+def send_game_over():
+   send_command("GameOver\n")
 
 #
 # Scoreboard
@@ -149,7 +158,8 @@ def parse_scoreboard(msg):
     scoreboard_line(leaderboard, recent_initials, recent_score)
 
     source = os.path.join(leaderboard_photocapture, "deathface" + scores_extension)
-    dest = os.path.join(leaderboard_data, recent_initials.strip() + "_" + str(items[3]) + scores_extension)
+    filename_only = recent_initials.strip() + "_" + str(items[3]) + "_" + datetime.datetime.now().isoformat() + "_" + altar_id + scores_extension
+    dest = os.path.join(leaderboard_data, filename_only)
     try:
        shutil.move(source, dest)
     except:
@@ -169,10 +179,16 @@ def parse_scoreboard(msg):
     leaderboard.close()
     f.close()
 
-    cwd = os.getcwd()
-    os.chdir(leaderboard_dir)
-    subprocess.call(['./copy_and_save_leaderboard.sh'])
-    os.chdir(cwd)
+    # TODO: Submit to scoreboard server.
+    payload = { 'initials': recent_initials,
+                'score': recent_score,
+                'date' : datetime.datetime.now().isoformat(),
+                'altar' : altar_id }
+    payload = { 'all_info' : filename_only }
+    files = { 'file' : open(dest, 'rb') }
+    print payload
+    print dest
+    print requests.post(scoreboard_url, data = payload, files = files)
 
     print "Scoreboard written."
 
@@ -188,22 +204,31 @@ last_capture = None
 capturing = False
 
 def capture_if_needed():
+   global last_capture
+   global capturing
+   global capture_images
+   global capture_handle
    if (capturing == False):
       return
    if ((last_capture != None) and (time.time() - last_capture < capture_delay)):
       return
+   
    frame = cv.QueryFrame(capture_handle)
    mat = cv.GetMat(frame)
-   a = np.asarray(mat[:,:])
+   smallerImage = cv.CreateImage( (320, 200), frame.depth, frame.nChannels)
+   cv.Resize(frame, smallerImage)
+   a = np.asarray(smallerImage[:,:])
+#   a = np.asarray(mat[:,:])
    capture_images.append(np.copy(a))
    if (len(capture_images) > num_photo_frames):
       del capture_images[0]
+   last_capture = time.time()
 
 def start_capture():
    global capturing
    global capture_handle
    if (capture_handle == None):
-      capture_handle = cv.CaptureFromCAM(-1)
+      capture_handle = cv.CaptureFromCAM(0)
    capturing = True
    capture_if_needed()
    print "Capture started."
@@ -245,16 +270,17 @@ def main(argv=None):
    gamerunning = False
 
    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+   s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
    print "Opening port %d" %(port)
    s.bind(('', port))
    s.setblocking(0)
 
-   rebroadcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
    print "Waiting for data..."
    while True:
       try:
-         find_devices()
+         # Commented out for quick VR hack, we'll need to re-enable this for effects.
+         # TODO: find_devices()
          capture_if_needed()
 
          if (gamerunning):
@@ -276,7 +302,6 @@ def main(argv=None):
          result = select.select([s],[],[],0.001)
          if (len(result[0]) > 0):
             msg = result[0][0].recv(80) # 10 bytes
-            rebroadcast.sendto(msg, ("192.168.0.67", 2085))
             if (dump_udp):
                print "%s | %s" %(dump_hex(msg), msg)
 
