@@ -29,7 +29,6 @@ post_game_over_seconds = 3.0
 dev_tty_prefix = "/dev/ttyACM*"
 altar_id = "WINDOW";
 scoreboard_url = "http://192.168.1.10:12084/leaderboard/"
-scoreboard_url = "http://10.0.1.20:12084/leaderboard/"
 
 if (os.path.isfile("dev-mode")):
    print "Override config for development."
@@ -180,16 +179,9 @@ def parse_scoreboard(msg):
     f.close()
 
     # TODO: Submit to scoreboard server.
-    payload = { 'initials': recent_initials,
-                'score': recent_score,
-                'date' : datetime.datetime.now().isoformat(),
-                'altar' : altar_id }
     payload = { 'all_info' : filename_only }
     files = { 'file' : open(dest, 'rb') }
-    print payload
-    print dest
     print requests.post(scoreboard_url, data = payload, files = files)
-
     print "Scoreboard written."
 
     if ((savior_score == recent_score) and (savior_initials == recent_initials)):
