@@ -7,8 +7,8 @@ var leaderboardLastModified = '';
 
 function pageInit(){
 	fetchAndUpdateLeaderboard();	//bootstrap initial state
-	window.setInterval(fetchAndUpdateLeaderboard, 250);	//TODO: Dial this back when working (for faster updates)
-	window.setInterval(showNextEntry, 18000);
+	window.setInterval(fetchAndUpdateLeaderboard, 2000);	//TODO: Dial this back when working (for faster updates)
+	window.setInterval(showNextEntry, 6000);
 	window.setInterval(rotateBorderPallette, 200);
 }
 
@@ -104,7 +104,7 @@ function nextColor(current){
 		if(nextIndex >= colors.length){
 			nextIndex = 0;
 		}
-	    
+
 		if(colors[i] == current){
 			return colors[nextIndex];
 		}

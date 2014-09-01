@@ -8,12 +8,12 @@ var leaderboardLastModified = null;
 function pageInit(){
 	fetchAndUpdateLeaderboard();	//bootstrap initial state
 	window.setInterval(fetchAndUpdateLeaderboard, 30*1000);	//TODO: Dial this back when working (for faster updates)
-	window.setInterval(showNextEntry, 12 * 1000);
-	window.setInterval(rotateBorderPallette, 200);
+	window.setInterval(showNextEntry, 1 * 1000);
+	window.setInterval(rotateBorderPallette, 400);
 }
 
 function fetchAndUpdateLeaderboard(){
-    jqxhr = $.ajax({ url: 'data/leaderboard.csv'}) //, 'ifModified': true})
+    jqxhr = $.ajax({ url: 'data/leaderboard.txt'}) //, 'ifModified': true})
 		.done(function(msg){
 			if(msg){
 				//console.log("%s", jqxhr.getResponseHeader('Last-Modified'));
