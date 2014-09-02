@@ -138,3 +138,8 @@ ul { list-style-type: none; }
 	margin-top:  1em;
    color: red;
 }
+
+#next_event {
+	font-family:  Helvetica;
+	font-size: 22px;
+}
