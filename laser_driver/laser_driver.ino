@@ -25,7 +25,7 @@ String command;
 
 //#define DEBUG
 
-const unsigned int num_lasers=10;
+const unsigned int num_lasers=9;
 
 const unsigned int baud=9600;
 
@@ -94,7 +94,7 @@ class laser
   unsigned long _off_time;
   static unsigned long _beat_off; //;-)
   static const unsigned long _beat_timeout=10000;
-  static const unsigned int _pulse_time=500;
+  static const unsigned int _pulse_time=250;
 
   void _off() {
     digitalWrite(_pin, LOW);
@@ -109,8 +109,8 @@ class laser
   
 unsigned long laser::_beat_off=0;  
 
-laser laser0(0), laser1(1), laser2(2), laser3(3), laser4(4), laser5(5), laser6(6), laser7(7), laser8(8), laser9(9);
-laser *lasers[num_lasers]={&laser0,&laser1,&laser2,&laser3,&laser4,&laser5,&laser6,&laser7,&laser8,&laser9};
+laser laser0(0), laser1(1), laser2(2), laser3(3), laser4(4), laser5(5), laser6(6), laser7(7), laser8(8);
+laser *lasers[num_lasers]={&laser0,&laser1,&laser2,&laser3,&laser4,&laser5,&laser6,&laser7,&laser8};
 
 void setup()
 {
@@ -141,7 +141,7 @@ void set_lasers(unsigned int mask)
 void random_laser_pulse() {
   static unsigned int last_laser=0;
   unsigned int next_laser=random(0,num_lasers-1);
-  if (next_laser==last_laser) {
+  if (next_laser>=last_laser) {
     next_laser++;
   }
   lasers[next_laser]->pulse();
