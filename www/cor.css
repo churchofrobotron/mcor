@@ -16,7 +16,10 @@ body {
 /*	overflow: hidden; */
 }
 
-ul { list-style-type: none; }
+ul { 
+	padding: 0;
+	list-style-type: none;
+}
 
 .red {
 	color: red;
@@ -142,4 +145,66 @@ ul { list-style-type: none; }
 #next_event {
 	font-family:  Helvetica;
 	font-size: 22px;
+}
+
+.event_row {
+	margin: 75px 0;
+}
+.event_container {
+	display: inline-block;
+}
+
+.flyer {
+	width: 250px;
+	height: 390px;
+	background-image: url('cor_flyer.png');
+	background-size: 250px 390px;
+	overflow: hidden;
+}
+.flyer_hilite {
+	width: 250px;
+	height: 390px;
+	background: #FFFF88;
+	opacity: 0.0;
+}
+.flyer_hilite:hover {
+	opacity: 0.4;
+}
+
+.event_text {
+	text-align: left;
+	margin-left: 40px;
+}
+.event_row h2 {
+	font-size: 1.5em;
+	white-space: nowrap;
+}
+.event_row p {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-size: 21px;
+}
+.event_row a {
+	color: #00ffff;
+	font-weight: 400;
+}
+
+.float_left {
+	float: left;
+}
+.white {
+	color: #ffffff;
+}
+
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.boxfix {
+	/* Prevent padding from spilling text beyond 100% box size */
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ 	*/
 }
