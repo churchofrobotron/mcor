@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+pid = Process.fork do
+  system("pd-extended -noaudio -nogui -alsamidi -mididev 1 lights.pd")
+end
+
+load "./connect_midi.rb"
+
+Signal.trap("TERM") do
+  Process.kill(pid)
+end
+Process.wait

@@ -4,7 +4,6 @@
 	src: local("ROBOTRON"), url( ROBOTRON.TTF ) format("truetype"); /* non-IE */
 }
 
-
 body {
 	margin: 0px;
 	padding: 0px;
@@ -14,8 +13,10 @@ body {
 	font-size: 28px;
 	color: #eeee00;
 	text-align: center;
-	overflow: hidden;
+/*	overflow: hidden; */
 }
+
+ul { list-style-type: none; }
 
 .red {
 	color: red;
@@ -28,8 +29,8 @@ body {
 
 #border1 {
 	display: block;
-	position:absolute;
-	height:auto;
+	/*position:absolute;*/
+/*	height:auto;*/
 	bottom:0;
 	top:0;
 	left:0;
@@ -45,8 +46,8 @@ body {
 #border2 {
 	border: solid rgb(0, 0, 255) 15px;
 	display: block;
-	position:absolute;
-	height:auto;
+	/*position:absolute;*/
+/*	height:auto;*/
 	bottom:0;
 	top:0;
 	left:0;
@@ -57,8 +58,8 @@ body {
 #border3 {
 	border: solid rgb(0, 255, 0) 15px;
 	display: block;
-	position:absolute;
-	height:auto;
+	/*position:absolute;*/
+/*	height:auto;*/
 	bottom:0;
 	top:0;
 	left:0;
@@ -69,8 +70,8 @@ body {
 #border4 {
 	border: solid rgb(255, 255, 0) 15px;
 	display: block;
-	position:absolute;
-	height:auto;
+	/*position:absolute;*/
+/*	height:auto;*/
 	bottom:0;
 	top:0;
 	left:0;
@@ -79,11 +80,11 @@ body {
 }
 
 #innermiddle {
-	margin-top: 5px;
+	margin-top: 25px;
 }
 
 #deathface1 {
-	margin-top:  25px;
+	margin-top:  75px;
 	margin-bottom:  25px;
 	margin-left: auto;
 	margin-right: auto;
@@ -91,8 +92,8 @@ body {
 	background-repeat: no-repeat;
 	background-position: center center;
 	background-size: 100%;
-	width: 312px;
-	height: 250px;
+	width: 400px;
+	height: 320px;
 	border: solid pink 3px;
 }
 
@@ -100,27 +101,45 @@ body {
 	height: 100%;
 }
 
-.scores
-{
-	line-height: 33px;
+#leftscores {
 	color: red;
+	float: left;
 	/*border: solid  blue 1px;*/
 	height:  100%;
-	font-size: 21px;
+	font-size: 22px;
 	margin-top: 100px;
+	line-height: 50px;
+	text-align: left;
 	margin-left:  10px;
 }
 
-#leftscores {
-	float: left;
-	text-align: left;
-}
-
 #rightscores {
+	color: red;
 	float: right;
+	/*border: solid  blue 1px;*/
+	height:  100%;
+	font-size: 22px;
+	line-height: 50px;
+	margin-top: 100px;
+	margin-right: 10px;
 }
 
 .currentslot {
 	color: cyan;
 }
 
+.cor_text_block {
+	display: block;
+	margin-top:  1em;
+}
+
+.cor_text_block_header {
+	display: block;
+	margin-top:  1em;
+   color: red;
+}
+
+#next_event {
+	font-family:  Helvetica;
+	font-size: 22px;
+}

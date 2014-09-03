@@ -42,9 +42,11 @@
 #define OUTPUT_E 2
 
 // Which port does this button read from
-const uint8_t keyPort[NUM_BUTTONS] = { INPUT_B, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D };
+const uint8_t keyPort[NUM_BUTTONS] = { INPUT_B, INPUT_B, INPUT_B, INPUT_B,
+                                       INPUT_D, INPUT_D, INPUT_D, INPUT_D, INPUT_D };
 // Which bit from the input port should we check
-const uint8_t keyMask[NUM_BUTTONS] = { 1 << 7, 1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7 };
+const uint8_t keyMask[NUM_BUTTONS] = { 1 << 0, 1 << 1, 1 << 3, 1 << 2,
+                                       1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7 };
 // What key should we send from that button
 const uint8_t key[NUM_BUTTONS] = { KEY_D, KEY_F, KEY_E, KEY_S, KEY_K, KEY_L, KEY_I, KEY_J, KEY_1 };
 // What index into the keyboard state array should we use.  Selected these indexes to minimize conflicts.  For example, up/down share an index because they should never be down at the same time.  Keyboard state array is defined in usb_keyboard_debug, it allows for up to six keys to be down at a time.
