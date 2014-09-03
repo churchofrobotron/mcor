@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-teensy = "24:0"
+teensy = "20:0"
 pd = "128:0"
 
 system('aconnect -x')

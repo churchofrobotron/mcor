@@ -1,0 +1,132 @@
+@font-face {  
+	font-family: "robotron";  
+	src: url( /location/of/font/FontFileName.eot ); /* IE */  
+	src: local("ROBOTRON"), url( ROBOTRON.TTF ) format("truetype"); /* non-IE */  
+}  
+
+
+body {
+	margin: 0px;
+	padding: 0px;
+	height: 100%;
+	background: black;
+	font-family: "robotron";
+	font-size: 28px;
+	color: #eeee00;
+	text-align: center;
+	overflow: hidden;
+}
+
+.red {
+	color: red;
+}
+
+.cyan {
+	color: cyan;
+}
+
+
+#border1 {
+	display: block;
+	position:absolute;
+	height:auto;
+	bottom:0;
+	top:0;
+	left:0;
+	right:0;
+	margin-top:25px;
+	margin-bottom:25px;
+	margin-right:25px;
+	margin-left:25px;
+	background-color: black;
+	border: solid rgb(255, 0, 255) 15px;
+}
+
+#border2 {
+	border: solid rgb(0, 0, 255) 15px;
+	display: block;
+	position:absolute;
+	height:auto;
+	bottom:0;
+	top:0;
+	left:0;
+	right:0;
+	margin-bottom: 0px;
+}
+
+#border3 {
+	border: solid rgb(0, 255, 0) 15px;
+	display: block;
+	position:absolute;
+	height:auto;
+	bottom:0;
+	top:0;
+	left:0;
+	right:0;
+	margin-bottom: 0px;
+}
+
+#border4 {
+	border: solid rgb(255, 255, 0) 15px;
+	display: block;
+	position:absolute;
+	height:auto;
+	bottom:0;
+	top:0;
+	left:0;
+	right:0;
+	margin-bottom: 0px;
+}
+
+#innermiddle {
+	margin-top: 25px;
+}
+
+#deathface1 {
+	margin-top:  75px;
+	margin-bottom:  25px;
+	margin-left: auto;
+	margin-right: auto;
+	background-image: url('data/deathface.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 100%;
+	width: 400px;
+	height: 320px;
+	border: solid pink 3px;
+}
+
+#face {
+	height: 100%;
+}
+
+#leftscores {
+	color: red;
+	float: left;
+	/*border: solid  blue 1px;*/
+	height:  100%;
+	font-size: 22px;
+	margin-top: 100px;
+	line-height: 50px;
+	text-align: left;
+	margin-left:  10px;
+}
+
+#rightscores {
+	color: red;
+	float: right;
+	/*border: solid  blue 1px;*/
+	height:  100%;
+	font-size: 22px;
+	line-height: 50px;
+	margin-top: 100px;
+	margin-right: 10px;
+}
+
+.currentslot { 
+	color: cyan;	
+}
+
+.paginate_enabled_next {
+	cursor:pointer;
+}
