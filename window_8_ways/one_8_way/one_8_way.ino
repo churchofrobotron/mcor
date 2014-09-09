@@ -4,13 +4,15 @@ void setup();
 #include <CapacitiveSensor.h>
 #include "CapacitiveTouchSwitch.h"
 
-#define USE_SERIAL
+//#define USE_SERIAL
 
-long threshold=35;
+#define FIRE //define for FIRE 8-way w/start
+
+long threshold=60;
+
 
 const uint8_t numSensors=8;
 
-#ifdef TEENSY3
 CapacitiveTouchSwitch sns0(0,threshold);
 CapacitiveTouchSwitch sns1(1,threshold);
 CapacitiveTouchSwitch sns2(23,threshold);
@@ -19,23 +21,28 @@ CapacitiveTouchSwitch sns4(19,threshold);
 CapacitiveTouchSwitch sns5(18,threshold);
 CapacitiveTouchSwitch sns6(17,threshold);
 CapacitiveTouchSwitch sns7(16,threshold);
-#else
-const uint8_t samples=30;
-CapacitiveTouchSwitch sns0(1,0,samples,threshold);
-CapacitiveTouchSwitch sns1(1,2,samples,threshold);
-CapacitiveTouchSwitch sns2(4,3,samples,threshold);
-CapacitiveTouchSwitch sns3(4,5,samples,threshold);
-CapacitiveTouchSwitch sns4(7,6,samples,threshold);
-CapacitiveTouchSwitch sns5(7,8,samples,threshold);
-CapacitiveTouchSwitch sns6(13,12,samples,threshold);
-CapacitiveTouchSwitch sns7(13,14,samples,threshold);
+#ifdef FIRE
+CapacitiveTouchSwitch sns8(15,threshold);
 #endif
 
 struct KeyboardTouch {
   CapacitiveTouchSwitch *key;
-  uint16_t keys[2];
+  uint16_t keys[3];
 };
 
+#ifdef FIRE
+struct KeyboardTouch keys[numSensors]= {
+  {&sns6,  {KEY_I,     0}}, //up
+  {&sns5,  {KEY_I, KEY_J}}, //up, left
+  {&sns4,  {    0, KEY_J}}, //left
+  {&sns3,  {KEY_K, KEY_J}}, //left, down
+  {&sns2,  {KEY_K,     0}}, //down
+  {&sns1,  {KEY_K, KEY_L}}, //down, right
+  {&sns0,  {    0, KEY_L}}, //right
+  {&sns7,  {KEY_I, KEY_L}}, //right, up
+};
+struct KeyboardTouch startKey={&sns8,  {KEY_1,     0}}; //start
+#else
 struct KeyboardTouch keys[numSensors]= {
   {&sns6,  {KEY_E,     0}}, //up
   {&sns7,  {KEY_E, KEY_S}}, //up, left
@@ -46,29 +53,22 @@ struct KeyboardTouch keys[numSensors]= {
   {&sns4, {    0, KEY_F}}, //right
   {&sns5, {KEY_E, KEY_F}} //right, up
 };
+#endif
 
-int letters[4]={KEY_E, KEY_S, KEY_D, KEY_F}; //up, left, down, right
 
 //touched key order
 int touchKeys[numSensors];
 int lastKeyIdx=0;
 
 CapacitiveTouchSwitch *sensors[numSensors]={&sns0, &sns1, &sns2, &sns3, &sns4, &sns5, &sns6, &sns7};
-#ifndef TEENSY3
-const uint8_t led_pins[numSensors]={21,20,19,18,17,21,20,19};
-#endif
+
+int last_key=-1;
 
 int last_on() {
   int rVal=-1;
   int least=0x7FFF;
   for (int i=0; i<numSensors; i++) {
     int elapsed=lastKeyIdx-touchKeys[i];
-#ifdef USE_SERIAL
-    Serial.print(i);
-    Serial.print(":");
-    Serial.print(elapsed);
-    Serial.print(", ");
-#endif
     if (elapsed<least && keys[i].key->State()) {
       least=elapsed;
       rVal=i;
@@ -77,32 +77,14 @@ int last_on() {
   return rVal;
 }
 
-void setKeysLeft(struct KeyboardTouch *key) {
-  Keyboard.set_key1(key->keys[0]);
-  Keyboard.set_key2(key->keys[1]);
-  Keyboard.send_now();
-}
-
-void setKeysRight(struct KeyboardTouch *key) {
-  Keyboard.set_key3(key->keys[0]);
-  Keyboard.set_key4(key->keys[1]);
-  Keyboard.send_now();
-}
-
-void setKeys(struct KeyboardTouch *leftKey, struct KeyboardTouch *rightKey, struct KeyboardTouch *startKey) {
+void setKeys(struct KeyboardTouch *leftKey, struct KeyboardTouch *startKey) {
   Keyboard.set_key1(0);
   Keyboard.set_key2(0);
-  Keyboard.set_key3(0);
-  Keyboard.set_key4(0);
   if (leftKey) {
     Keyboard.set_key1(leftKey->keys[0]);
     Keyboard.set_key2(leftKey->keys[1]);
   }
-  if (rightKey) {
-    Keyboard.set_key3(rightKey->keys[0]);
-    Keyboard.set_key4(rightKey->keys[1]);
-  }
-  Keyboard.set_key5(startKey && startKey->key->State() ? startKey->keys[0] : 0);
+  Keyboard.set_key3(startKey && startKey->key->State() ? startKey->keys[0] : 0);
   Keyboard.send_now();
 }
 
@@ -115,10 +97,6 @@ void setup () {
 #endif
   //set led pins as output low
   for (int i=0; i<numSensors; i++) {
-#ifndef TEENSY3
-    pinMode(led_pins[i],OUTPUT);
-    digitalWrite(led_pins[i],LOW);
-#endif
     //configure sensor Hysteresis and timeout
     CapacitiveTouchSwitch *key=keys[i].key;
     key->SetHysteresis(threshold/2); 
@@ -137,51 +115,58 @@ void print_stats () {
 }
 
 void loop () {
+#ifdef FIRE
+  bool startChanged=false;
+  startKey.key->Update();
+  if (startKey.key->Changed()) {
+    startChanged=true;
+#ifdef USE_SERIAL
+    if (startKey.key->State()) {
+      Serial.println("start on");
+    } else {
+      Serial.println("start off");
+    }
+#endif
+  }
+#endif
   for (int i=0; i<numSensors; i++) {
     CapacitiveTouchSwitch *key=keys[i].key;
     key->Update();
     //look for a change in switch state
     if (key->Changed()) {
       if (key->State()) {
-#ifndef TEENSY3
-        //if changed and now on, send a MIDI note on event
-        digitalWrite(led_pins[i],HIGH);
-#endif
 #ifdef USE_SERIAL
         Serial.print(i);
-        Serial.print(" on ");
+        Serial.println(" on");
 #endif
+        //save the key
         touchKeys[i]=lastKeyIdx;
         lastKeyIdx++;
-        setKeys(keys+i,0,0);
-#ifdef USE_SERIAL
-        Serial.println();
-#endif
       } else {
 #ifdef USE_SERIAL
         Serial.print(i);
-        Serial.print(" off, last on ");
-#endif
-        int last_key=last_on();
-#ifdef USE_SERIAL
-        Serial.print(last_key);
-        Serial.print(" ");
-#endif
-        if (last_key>=0) {
-          setKeys(keys+last_key,0,0);
-        } else {
-          setKeys(0,0,0);
-        }
-#ifndef TEENSY3
-        digitalWrite(led_pins[i],LOW);
-#endif
-#ifdef USE_SERIAL
-        Serial.println();
+        Serial.println(" off");
 #endif
       }
     }
   }
+  int new_last_key=last_on();
+#ifdef FIRE
+  if (new_last_key!=last_key || startChanged) {
+#else
+    if (new_last_key!=last_key) {
+#endif
+#ifdef USE_SERIAL
+      Serial.println(last_key);
+#endif
+      last_key=new_last_key;
+#ifdef FIRE
+      setKeys(last_key>=0 ? keys+last_key : 0, &startKey);
+#else
+      setKeys(last_key>=0 ? keys+last_key : 0, 0);
+#endif
+  }
   //print_stats();
-  //delay(100);
+  delay(10);
 }
 
