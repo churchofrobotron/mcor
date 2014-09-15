@@ -1,0 +1,2 @@
+#SUBSYSTEMS=="usb", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", MODE:="0666"
+ACTION=="add", BUS=="usb", SYSFS{idVendor}=="2341", SYSFS{idProduct}=="8036", GROUP:="mutant", MODE:="0666"
