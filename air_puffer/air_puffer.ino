@@ -1,6 +1,7 @@
 
 #define ON_TIME 50
 #define OFF_TIME 1500
+#define PUFF_DELAY 1000
 
 const unsigned int BAUD = 9600;
 
@@ -19,24 +20,35 @@ void pin_cycle(byte pin){
   delay(OFF_TIME);
 }
 
-String command = ""
+String command = "";
+unsigned long start1 = 0;
+unsigned long start2 = 0;
 
 void loop(){
   
   char c;
-  //check for new serial characters
   while (Serial.available()) {
     c=Serial.read();
     if (c=='\n' || c=='\r') {
-      if (cmd.startsWith("WaveNum")){  //it's our guy
-      
+      if (command.startsWith("WaveNum1")){
+        start1 = millis();
       }
+      else if(command.startsWith("WaveNum2")){
+        start2 = millis();
+      }     
       command="";
     }
     else {
-      
+      command += c;      
     }
   }
-  //pin_cycle(0);
-  //pin_cycle(1);
+  
+  if(start1 && ((millis() - start1) > PUFF_DELAY)){
+    pin_cycle(0);
+    start1 = 0;
+  }
+  if(start2 && ((millis() - start2) > PUFF_DELAY)){
+    pin_cycle(1);
+    start2 = 0;
+  }
 }
