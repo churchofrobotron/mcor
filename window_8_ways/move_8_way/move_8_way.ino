@@ -6,7 +6,6 @@ void setup();
 
 //#define USE_SERIAL
 
-
 long threshold=60;
 
 
@@ -20,30 +19,17 @@ CapacitiveTouchSwitch sns4(19,threshold);
 CapacitiveTouchSwitch sns5(18,threshold);
 CapacitiveTouchSwitch sns6(17,threshold);
 CapacitiveTouchSwitch sns7(16,threshold);
-CapacitiveTouchSwitch sns8(15,threshold);
 
 struct KeyboardTouch {
   CapacitiveTouchSwitch *key;
-  uint16_t keys[2];
+  uint16_t keys[3];
 };
 
 const int lastTouchPins[]={9,10,11,12};
-const int handshakeOut=8; //master handshake
-const int handshakeIn=7; //slave handshake
+const int handshakeIn=8; //master handshake
+const int handshakeOut=7; //slave handshake
 
 struct KeyboardTouch keys[numSensors]= {
-  {&sns6,  {KEY_I,     0}}, //up
-  {&sns5,  {KEY_I, KEY_J}}, //up, left
-  {&sns4,  {    0, KEY_J}}, //left
-  {&sns3,  {KEY_K, KEY_J}}, //left, down
-  {&sns2,  {KEY_K,     0}}, //down
-  {&sns1,  {KEY_K, KEY_L}}, //down, right
-  {&sns0,  {    0, KEY_L}}, //right
-  {&sns7,  {KEY_I, KEY_L}}, //right, up
-};
-struct KeyboardTouch startKey={&sns8,  {KEY_1,     0}}; //start
-
-struct KeyboardTouch moveKeys[numSensors]= {
   {&sns6,  {KEY_E,     0}}, //up
   {&sns7,  {KEY_E, KEY_S}}, //up, left
   {&sns0,  {    0, KEY_S}}, //left
@@ -54,11 +40,9 @@ struct KeyboardTouch moveKeys[numSensors]= {
   {&sns5, {KEY_E, KEY_F}} //right, up
 };
 
-
 //touched key order
 int touchKeys[numSensors];
 int lastKeyIdx=0;
-int moveKey=0;
 
 CapacitiveTouchSwitch *sensors[numSensors]={&sns0, &sns1, &sns2, &sns3, &sns4, &sns5, &sns6, &sns7};
 
@@ -77,20 +61,14 @@ int last_on() {
   return rVal;
 }
 
-void setKeys(struct KeyboardTouch *leftKey, struct KeyboardTouch *rightKey, struct KeyboardTouch *startKey) {
+void setKeys(struct KeyboardTouch *leftKey, struct KeyboardTouch *startKey) {
   Keyboard.set_key1(0);
   Keyboard.set_key2(0);
-  Keyboard.set_key3(0);
-  Keyboard.set_key4(0);
   if (leftKey) {
     Keyboard.set_key1(leftKey->keys[0]);
     Keyboard.set_key2(leftKey->keys[1]);
   }
-  if (rightKey) {
-    Keyboard.set_key3(rightKey->keys[0]);
-    Keyboard.set_key4(rightKey->keys[1]);
-  }
-  Keyboard.set_key5(startKey && startKey->key->State() ? startKey->keys[0] : 0);
+  Keyboard.set_key3(startKey && startKey->key->State() ? startKey->keys[0] : 0);
   Keyboard.send_now();
 }
 
@@ -110,13 +88,13 @@ void setup () {
     key->SetBaselineAlways(false); //don't adjust baseline while on 
     touchKeys[i]=0;
   }
+
   //set up the last out pins
   for (int i=0; i<4; i++) {
-    pinMode(lastTouchPins[i], INPUT);
+    pinMode(lastTouchPins[i], OUTPUT);
   }
   pinMode(handshakeOut, OUTPUT);
   pinMode(handshakeIn, INPUT);
-  
 }
 
 void print_stats () {
@@ -127,18 +105,16 @@ void print_stats () {
   Serial.println();
 }
 
-int readLastOutPins() {
-  int out=0;
+void setLastOutPins(const int last) {
+  int mask=1;
   for (int i=0; i<4; i++) {
-    out >>= 1;
-    if (digitalRead(lastTouchPins[i])==HIGH) {
-      out|=8;
+    if (mask & last) {
+      digitalWrite(lastTouchPins[i], HIGH);
+    } else {
+      digitalWrite(lastTouchPins[i], LOW);
     }
+    mask<<=1;
   }
-  if (out>=numSensors) {
-    out=-1;
-  }
-  return out;
 }
 
 void waitHandshakeHigh() {
@@ -159,20 +135,9 @@ void handshakeLow() {
   digitalWrite(handshakeOut, LOW);
 }
 
-
 void loop () {
-  bool startChanged=false;
-  startKey.key->Update();
-  if (startKey.key->Changed()) {
-    startChanged=true;
-#ifdef USE_SERIAL
-    if (startKey.key->State()) {
-      Serial.println("start on");
-    } else {
-      Serial.println("start off");
-    }
-#endif
-  }
+  waitHandshakeLow(); //indicates OK to proceed
+  handshakeLow();
   for (int i=0; i<numSensors; i++) {
     CapacitiveTouchSwitch *key=keys[i].key;
     key->Update();
@@ -195,32 +160,19 @@ void loop () {
     }
   }
   int new_last_key=last_on();
-  //wait until we see data ready from slave
+  if (new_last_key!=last_key) {
 #ifdef USE_SERIAL
-  //Serial.println("waiting high");
+    Serial.println(last_key);
 #endif
-  waitHandshakeHigh();
-  int newMoveKey=readLastOutPins();
-  //indicate OK to move on
-  handshakeHigh();
-#ifdef USE_SERIAL
-  //Serial.println("waiting low");
-#endif
-
-  waitHandshakeLow();
-  handshakeLow();
-
-  if (new_last_key!=last_key || newMoveKey!= moveKey || startChanged) {
     last_key=new_last_key;
-    moveKey=newMoveKey;
-#ifdef USE_SERIAL
-    Serial.print(last_key);
-    Serial.print(" ");
-    Serial.print(moveKey);
-    Serial.print(" ");
-    Serial.println(startChanged);
-#endif
-    setKeys(last_key>=0 ? keys+last_key : 0, moveKey>=0 ? moveKeys+moveKey : 0 , &startKey);
+    //setKeys(last_key>=0 ? keys+last_key : 0, 0);
   }
+  setLastOutPins(last_key);
+  //set handshake to indicate that we have new data
+  handshakeHigh();
+  //don't move on til we see handshake from master
+  waitHandshakeHigh();
+  handshakeLow();
+  waitHandshakeLow();
 }
 

@@ -1,0 +1,198 @@
+
+void setup();
+
+#include <TimerOne.h>
+#include <CapacitiveSensor.h>
+#include "CapacitiveTouchSwitch.h"
+
+long int timer=0;
+int current_note;
+long threshold=15;
+const uint8_t samples=30;
+
+const int numSensors=8;
+
+CapacitiveTouchSwitch sns0(1,0,samples,threshold);
+CapacitiveTouchSwitch sns2(1,2,samples,threshold);
+CapacitiveTouchSwitch sns3(4,3,samples,threshold);
+CapacitiveTouchSwitch sns5(4,5,samples,threshold);
+CapacitiveTouchSwitch sns6(7,6,samples,threshold);
+CapacitiveTouchSwitch sns8(7,8,samples,threshold);
+CapacitiveTouchSwitch sns12(13,12,samples,threshold);
+CapacitiveTouchSwitch sns14(13,14,samples,threshold);
+
+//linked list of keys that are down
+struct pressed_key;
+
+struct KeyboardTouch {
+  CapacitiveTouchSwitch *key;
+  uint8_t keyMask;
+  pressed_key *last_node;
+};
+
+struct pressed_key {
+  KeyboardTouch* key;
+  pressed_key *older;
+  pressed_key *newer;
+};
+
+KeyboardTouch keys[8]= {
+  {&sns0, 0x01, 0},
+  {&sns2, 0x03, 0},
+  {&sns3, 0x02, 0},
+  {&sns5, 0x06, 0},
+  {&sns6, 0x04, 0},
+  {&sns8, 0x0C, 0},
+  {&sns12, 0x08, 0},
+  {&sns14, 0x09, 0},
+};
+
+pressed_key *newest;
+pressed_key *oldest;
+pressed_key key_pool[8];
+uint8_t key_pool_idx;
+
+uint8_t letters[4]={'e','s','d','f'};
+
+CapacitiveTouchSwitch *sensors[numSensors]={&sns0, &sns2, &sns3, &sns5, &sns6, &sns8, &sns12, &sns14};
+const uint8_t led_pins[numSensors]={21,20,19,18,17,17,17,17};
+uint8_t note_history[numSensors];
+uint8_t note_on_count=0;
+uint8_t history_idx=0;
+
+
+void list_delete_node(pressed_key* node) {
+  //if there's a newer node, make older (or oldest) point to it
+  //if no newer node, this was newest. make newest point to older or nothing
+  if (node->newer != 0) {
+    if (node -> older != 0) {
+      node->older->newer=node->newer;
+    } else {
+      oldest=node->newer;
+    }
+  } else {
+    if (node -> older !=0) {
+      newest=node->older;
+    } else {
+      newest=0;
+    }
+  }
+  //if there's an older node, make newer (or newest) point to it
+  //if no older node, this was oldest. make oldest point to newer or nothing 
+  if (node->older != 0) {
+    if (node -> newer !=0) {
+      node->newer->older=node->older;
+    } else {
+      newest=node->older;
+    }
+  } else {
+    if (node->newer != 0) {
+      oldest=node->newer;
+    } else {
+      oldest=0;
+    }
+  }
+  //delete pointers from the node just in case
+  node->key=0;
+  node->older=0;
+  node->newer=0;
+}
+
+void list_insert_newest(pressed_key* node) {
+  if (newest != 0) {
+    newest->newer=node;
+    node->older=newest;
+  } else {
+    //if newest 0, oldest should also be
+    node->older=0;
+    oldest=node;
+  }
+  //newer always zero since we're inserting at newest
+  node->newer=0;
+  newest=node;
+}
+
+void delete_from_list(KeyboardTouch *key) {
+  if (key->last_node != 0) {
+    list_delete_node(key->last_node);
+  }
+  key->last_node=0;
+}
+
+void handle_key_down(KeyboardTouch *key) {
+  //if, somehow, last node is still in the list, delete it (this shouldn't happen)
+  delete_from_list(key);
+
+  //get next available node from pool
+  KeyboardTouch *node=key_pool+key_pool_idx;
+  key_pool_idx=(key_pool_idx+1)%num_sensors;
+
+  //and insert it into list at newest position
+  node->key=key;
+  list_insert_newest(node);
+}
+
+void handle_key_up(KeyboardTouch *key) {
+  //delete key's node from list
+  delete_from_list(key);
+}
+
+void send_note_on {
+}
+
+void setup () {
+#if 0
+  //Start serial. Baud rate is ignored with USB.
+  Serial.begin(9600);
+  Serial.println("Capacitive Sensing Demo");
+  //set led pins as output low
+  for (int i=0; i<numSensors; i++) {
+    pinMode(led_pins[i],OUTPUT);
+    digitalWrite(led_pins[i],LOW);
+    //configure sensor Hysteresis and timeout
+    sensors[i]->SetHysteresis(threshold/2); 
+    sensors[i]->SetTimeoutMs(5000); //5 seconds, for now
+    sensors[i]->SetBaselineAlways(false); //don't adjust baseline while on 
+  }
+#endif
+}
+
+void loop () {
+#if 0
+  for (int i=0; i<numSensors; i++) {
+    
+    keys[i]->key->Update();
+    Serial.print(i);
+    Serial.print(':');
+    Serial.print(sensors[i]->LastResult());
+    Serial.print(',');
+    Serial.print(sensors[i]->Baseline());
+    Serial.print('\t');
+    //look for a change in switch state
+    uint8_t note_num=midi_notes[i];
+    if (sensors[i]->Changed()) {
+      if (sensors[i]->State()) {
+        //if changed and now on, send a MIDI note on event
+        usbMIDI.sendNoteOn(note_num, 127, 1);
+        digitalWrite(led_pins[i],HIGH);
+        note_history[history_idx]=note_num;
+        history_idx=(history_idx+1)%numSensors;
+        note_on_count=note_on_count+1;
+      } else if (note_on_count>0) {
+        //sanity check: make sure there are notes on
+        //if this was the last note on, send a note off
+        uint8_t last_idx=(history_idx-1)%numSensors;
+        if (note_history[])
+        usbMIDI.sendNoteOff(midi_notes[i], 0, 1);
+        digitalWrite(led_pins[i],LOW);
+
+
+      } else {
+      }
+    }
+  }
+  Serial.println();
+  delay(15);
+#endif
+}
+
