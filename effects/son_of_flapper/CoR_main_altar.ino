@@ -22,8 +22,9 @@ String cmd4off = "4off";
 String cmd5on = "5on";
 String cmd5off = "5off";
 String cmdFlap = "HumanKilled";
-String cmdAdjust = "tweak";
+String cmdTweak = "tweak";
 String cmdIdle = "idle";
+String cmdEnd = "GameOver";
 
 // AC outlet pins
 int ac1on = 11;
@@ -36,7 +37,7 @@ int ac4on = 17;
 int ac4off = 18;
 int ac5on = 19;
 int ac5off = 20;
-int remoteDelay = 750;
+int remoteDelay = 200;
 
 // Servo pins
 int leftServoPin = 9;
@@ -44,19 +45,23 @@ int rightServoPin = 10;
 
 // serial variables
 char inChar = -1;
-char serialBuffer[24];
+const int serialBufferLen = 24;
+char serialBuffer[serialBufferLen];
 int index = 0;
 
 // servo angles for tweeaking
-int idleAngle = 0;
-int flapAngle = 120;
+int idleAngleLeft = 0;
+int flapAngleLeft = 90;
+
+int idleAngleRight = 0;
+int flapAngleRight = 90;
 
 void setup() {
   
   leftServo.attach(leftServoPin);
   rightServo.attach(rightServoPin);
-  leftServo.write(idleAngle);
-  rightServo.write(idleAngle);
+  leftServo.write(idleAngleLeft);
+  rightServo.write(idleAngleRight);
   
   char serialBuffer[12];
   Serial.begin(9600);
@@ -73,15 +78,19 @@ void loop() {
   while (Serial.available() > 0)
   {
     inChar = Serial.read();
-    Serial.println(inChar);
+    Serial.print(inChar);
     if (inChar != '\n') {
       serialBuffer[index] = inChar;
       index++;
+      if (index >= serialBufferLen)
+        index = 0;
     } else if (inChar == '\n') {
       index++;
+      if (index >= serialBufferLen)
+        index = 0;      
       serialBuffer[index] = '\0';
       serialCmd(serialBuffer);
-      for (int x = 0; x < 12; x++) serialBuffer[x] = '\0';
+      for (int x = 0; x < serialBufferLen; x++) serialBuffer[x] = '\0';
       index = 0;
       inChar = -1;
     }
@@ -89,16 +98,29 @@ void loop() {
 }
 
 void flap() {
-  leftServo.write(flapAngle);
-  rightServo.write(flapAngle);
+  leftServo.write(flapAngleLeft);
+  rightServo.write(flapAngleRight);
   delay(500);
-  leftServo.write(idleAngle);
-  rightServo.write(idleAngle);
+  leftServo.write(idleAngleLeft);
+  rightServo.write(idleAngleRight);
 }
 
 void serialCmd(String myCmd) {
   if (myCmd == cmdFlap) flap();
-  
+  if (myCmd == cmdEnd) {
+//    digitalWrite(ac1on, HIGH);
+//    digitalWrite(ac5off, HIGH);
+//    delay(remoteDelay);
+//    digitalWrite(ac1on, LOW);
+//    digitalWrite(ac5off, LOW);    
+    digitalWrite(ac1on, HIGH);
+    delay(remoteDelay);
+    digitalWrite(ac1on, LOW);
+    delay(remoteDelay);
+    digitalWrite(ac5off, HIGH);
+    delay(remoteDelay);
+    digitalWrite(ac5off, LOW);
+  }  
   if (myCmd == cmd1on) {
     digitalWrite(ac1on, HIGH);
     delay(remoteDelay);
@@ -140,10 +162,10 @@ void serialCmd(String myCmd) {
     delay(remoteDelay);
     digitalWrite(ac5off, LOW);
   } else if (myCmd == cmdTweak) {
-    leftServo.write(90);
-    rightServo.write(90);
+    leftServo.write(flapAngleLeft);
+    rightServo.write(flapAngleRight);
   } else if (myCmd == cmdIdle) {
-    leftServo.write(idelAngle);
-    rightServo.write(idleAngle);
+    leftServo.write(idleAngleLeft);
+    rightServo.write(idleAngleRight);
   }
 }
