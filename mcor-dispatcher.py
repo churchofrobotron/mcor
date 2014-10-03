@@ -26,8 +26,8 @@ leaderboard_dir = "./leaderboard/"
 frames_per_second = 4.0
 seconds_to_capture = 4.0
 post_game_over_seconds = 3.0
-dev_tty_prefix = "/dev/ttyACM*"
-altar_id = "WINDOW";
+dev_tty_prefix = "/dev/tty.usbmodem*"
+altar_id = "VR";
 scoreboard_url = "http://192.168.1.10:12084/leaderboard/"
 
 if (os.path.isfile("dev-mode")):
@@ -78,7 +78,7 @@ def send_end():
    send_command("END1:666\n")
 
 def send_humankilled():
-   send_command("HUMKIL1:666\n")
+   send_command("HumanKilled\n")
 
 def send_wave(num):
    send_command("WAV1:" + "{0:x}\n".format(num))
@@ -268,11 +268,16 @@ def main(argv=None):
    s.bind(('', port))
    s.setblocking(0)
 
+   scan_interval = 2
+   scan = time.time() - scan_interval
+
    print "Waiting for data..."
    while True:
       try:
          # Commented out for quick VR hack, we'll need to re-enable this for effects.
-         # TODO: find_devices()
+         if (time.time() - scan >= scan_interval):
+           find_devices()
+           scan = time.time()
          capture_if_needed()
 
          if (gamerunning):

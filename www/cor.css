@@ -16,7 +16,7 @@ body {
 /*	overflow: hidden; */
 }
 
-ul { 
+ul {
 	padding: 0;
 	list-style-type: none;
 }
@@ -139,7 +139,8 @@ ul {
 .cor_text_block_header {
 	display: block;
 	margin-top:  1em;
-   color: red;
+	color: red;
+  font-size: 1.5em;
 }
 
 #next_event {
