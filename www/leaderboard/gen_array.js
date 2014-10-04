@@ -1,6 +1,6 @@
 var fs = require("fs");
 
-files = fs.readdirSync(".");
+files = fs.readdirSync("./data");
 
 console.log("var scoreTable = [");
 for (i = 0; i < files.length; i++) {
