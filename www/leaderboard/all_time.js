@@ -7,7 +7,7 @@ function getUrlParam( name )
   if( results == null )
     return "";
   else
-    return results[1].replace("+", " ");
+    return decodeURIComponent(results[1].replace("+", " "));
 }
 
 $(document).ready(function() {
