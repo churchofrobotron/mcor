@@ -168,3 +168,15 @@ table.scores_display
 .paginate_disabled_previous {
 	display: none;
 }
+
+.sorting {
+    cursor:pointer;
+}
+
+.sorting_desc {
+    cursor:pointer;
+}
+
+.sorting_asc {
+    cursor:pointer;
+}
