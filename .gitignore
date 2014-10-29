@@ -1,3 +1,4 @@
 dev-mode
 *.pyc
 www/leaderboard/data
+leaderboard/data
