@@ -33,7 +33,8 @@ $(document).ready(function() {
                     return sReturn;
                 }
             },
-            { "sTitle": "Location", "sWidth" : "10em" }
+            { "sTitle": "Location", "sWidth" : "10em" },
+            { "sTitle": "Rank", "sWidth" : "4em" }
         ],
         "aaSorting" : [[1, "desc"]],
         "bDeferRender" : true,
