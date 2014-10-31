@@ -1,5 +1,3 @@
-// TODO: Just reset to top when reaching maxImage, fix shit..
-
 var currIndex = 0;
 var numImage = 0;
 
