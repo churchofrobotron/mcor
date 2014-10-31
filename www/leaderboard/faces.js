@@ -2,7 +2,7 @@ var currIndex = 0;
 var numImage = 0;
 
 var startIndex = 0;
-var maxImage = 100;
+var maxImage = 500;
 
 function addImage() {
     var content = "";
