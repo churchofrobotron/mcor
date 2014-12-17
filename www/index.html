@@ -4,14 +4,16 @@
 <head>
 	<title>church of robotron</title>
 
-<!-- 	<link href='http://fonts.googleapis.com/css?family=Roboto:400' rel='stylesheet' type='text/css'>
- -->	<link rel='stylesheet' href='cor.css'/>
+  <link rel='stylesheet' href='cor.css'/>
 
 	<script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="jquery.animate-colors-min.js"></script>
+
 	<script type="text/javascript" src="cor.js"></script>
 	<script type="text/javascript" src="json2.js"></script>
+  <script type="text/javascript" src="typed.js"></script>
 </head>
-<body onLoad='pageInit()'>
+<body onLoad='pageInit(); animatedSermonInit(false); typetext(".fillme", sermons.intro + "|XXX", null);'>
 
 <div id='border1'><div id='border2'><div id='border3'><div id='border4'>
 
@@ -349,6 +351,10 @@ I feel like I'm out of scanning range and I dive into an unknown church.  I've g
      <li>Thanks to Toorcamp Art Grants, Eugene Jarvis and Vid Kidz, Sean Riddle!</li>
    </ul>
    </div>
+
+    <div id="sermonframe" class="fixedsermon">
+      <span class="fillme"></span>
+    </div>
 
 </div></div></div></div>
 

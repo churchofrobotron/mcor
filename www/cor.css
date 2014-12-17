@@ -37,6 +37,12 @@ body#sermon {
   line-height: 40px;
   text-align: left;
   padding: 80px 80px 40px 80px;
+  width: 80%;
+  overflow: scroll;
+}
+
+.fixedsermon {
+	height: 5em;
 }
 
 #border1 {
