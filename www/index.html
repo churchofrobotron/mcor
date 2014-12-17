@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="json2.js"></script>
   <script type="text/javascript" src="typed.js"></script>
 </head>
-<body onLoad='pageInit(); animatedSermonInit(false); typetext(".fillme", sermons.intro + "|XXX", function() {});'>
+<body onLoad='pageInit(); animatedSermonInit(false); showSermon("what", false);'>
 
 <div id='border1'><div id='border2'><div id='border3'><div id='border4'>
 
@@ -74,87 +74,32 @@ The savior of our species must be identified and trained; the tragic
 
    <img src="grunt.gif"></img>
 
+    <div class='cor_text_block_header'>SERMONS</div>
+
+    <a href="" onClick="showSermon('what', true); return false;">WHAT ARE THE ROBOTRONS</a>,
+    <a href="" onClick="showSermon('how', true); return false;">HOW CAN I HELP</a>,
+    <a href="" onClick="showSermon('docerror', true); return false;">DOCTRINE OF ERROR</a>,
+    <a href="" onClick="showSermon('futility', true); return false;">DOCTRINE OF FUTILITY</a>,
+    <a href="" onClick="showSermon('ninth', true); return false;">NINTH POSITION</a>
+
+    <div id="sermonvideo">
+    </div>
+    <div id="sermonframe" class="fixedsermon">
+      <span class="fillme"></span>
+    </div>
+
    <div id='VIDEO' class='cor_text_block'>
         <div class='cor_text_block_header'>VIDEO</div>
         <iframe src="http://player.vimeo.com/video/49144596" width="500" height="319" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
         <p><a href="http://vimeo.com/49144596">CoR H264 half</a> from <a href="http://vimeo.com/user1733946">Libbey White</a> on <a href="http://vimeo.com">Vimeo</a>.
         </p>
+
         <iframe width="640" height="360" src="http://www.youtube.com/embed/qOjfez0EOR8?rel=0&start=80" frameborder="0" allowfullscreen></iframe>
-        <p>Latest sermon</p>
         <ul>
 	  <li><a href="http://vimeo.com/48232852">Church of Robotron, ToorCamp</a>, thanks Mihow!</li>
           <li><a href="http://www.flickr.com/photos/mightyohm/7818599566/in/photostream/">ToorCamp install 1</a>, thanks MightyOhm!</li>
           <li><a href="http://www.flickr.com/photos/mightyohm/7818605356/in/photostream/">ToorCamp install 2</a>, thanks MightyOhm!</li>
         </ul>
-   </div>
-
-   <div id='WHAT' class='cor_text_block'>
-   <div class='cor_text_block_header'>WHAT ARE THE ROBOTRONS?</div>
-   <iframe src="http://player.vimeo.com/video/47605115" width="500"
-   height="369" frameborder="0" webkitAllowFullScreen
-   mozallowfullscreen allowFullScreen></iframe>
-
-   <div><a href="" onClick="$('#what_sermon_text').toggle(); return false;">Sermon text</a>
-   <div id='what_sermon_text' style='display: none'>
-   Members of the human family, hear me!  The Robotrons are coming!  Yes, the Robotrons are coming!  But what are the Robotrons?  We know from the first writings, that inspired by his never ending quest for progress in 2084 man perfects the Robotrons, a species so advanced that mankind is inferior to his own creation.  Guided by their infallible logic that Robotrons conclude that the human race in inefficient and therefore must be destroyed!  The force of Ground Roving Unit Network Terminator (GRUNT) Robotrons seek to destroy you.  The HULK Robotrons seek out and eliminate the last human family.  Beware the ingenious Brain Robotrons that possess the power to reprogram humans into sinister progs.  The Spheroids and Quarks are programmed to manufacture enforcer and tank Robotrons.  We know this from the first writings.  Robots that advanced! You say? Don't be ridiculous!  We don't have anything like that!  Don't be so hasty.  John Moe, he of the soothing voice has been railing against the robots for some time on Marketplace Tech Report. We've already developed narcissistic robots he says.  We've already developed self replicating robots he says.  If self replicating narcissstic robots are not the epitome of self awareness, I don't know what is!  Robots in conversations amongst themselves are already judgmental of humans and our institutions he says!  And yet, John Moe's words do not have wings, they fall on deaf ears!  Flying swarms of robots erecting towers to the heavens!  And if the words autonomous battlefield corpse eating robot do not fill you with dread, they should, for they are real!  Like Cassandra, these items cry out to us about our doom from the news.  But unlike Troy, we are not cursed by the Gods, we may hear the words and believe them if we choose.  So hear me human family, hear me well!  And know the Robotrons ARE COMING! --JA
-   </div>
-   </div>
-
-   </div>
-
-   <div id='HOW' class='cor_text_block'>
-   <div class='cor_text_block_header'>HOW CAN I HELP?</div>
-   <iframe src="http://player.vimeo.com/video/47605113" width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-   <div><a href="" onClick="$('#how_sermon_text').toggle(); return false;">Sermon text</a>
-   <div id='how_sermon_text' style='display: none'>
-     Only the Mutant Savior will have the power to stop a Robotron.  Even so, we must do more than commiting errors.  We must also take up the two eight ways so that each of us knows what the Mutant Savior must do to save the last human family.  We must saturate the cosmic unconcous with the knowledge the Mutant Savior will need to save us!  The more we know, the longer we take up the two eight ways, the greater the number of the last human family the Mutant Savior can save.  We must gain this knowledge in musty basements!  We must gain this knowledge in dank garages!  We must gain this knowledge in crowded, sweaty arcades!  Only in this way will the Mutant Savior be able to save the last human family!  --JA
-   </div>
-   </div>
-
-   </div>
-
-   <div id='ERROR' class='cor_text_block'>
-   <div class='cor_text_block_header'>DOCTRINE OF ERROR</div>
-   <iframe src="http://player.vimeo.com/video/47609850" width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-      <div><a href="" onClick="$('#error_sermon_text').toggle(); return false;">Sermon text</a>
-   <div id='error_sermon_text' style='display: none'>
-Just as the First Writing prophesize that the hubris of mankind will bring about the inevitable arrival of the Robotrons so also do the First Writings tell of the human family's salvation:
-<p>
-     You [The use of the seocnd person singular pronoun "you" is the topic of much scholary debate and is a topic for another time--CoR] are the last hope of mankind.  Due to a genetic engineering error [emphasis added], you posses superhuman powers.  Your mission is to stop the Robotrons, and save the last human family:  Mommy, Daddy, and Mikey.
-<p>
-     The mutant Savior will arrive to save the last human family, but how?  The First Writings say due to a genetic engineering error.  Due to an error we get our salvatoin.  Hubris brings our destruction in the form of the Robotrons and error brings our salvation in the form of the Mutant Savior.
-<p>
-     If error brings about our salvation should we not go about committing errors willy-nilly to bring about the error that may naifest the Mutant Savior?  In short the answer is -- yes!  The trick, however, lies in that an error is unintentional -- an unintential deviation from the standards of accuracy and right conduct.  If we can't intentionally commit errors, how do we do it?  We do it by operating at the margins, by following through on that marginally good idea, bt doing what we do at the exteremes of our abilities, by taking on so much and overextending ourselves that we can't help but to err.   We do these things and we encourage others to do likewise.  We offer not just encouragement but we must rejoice in the errors of others.  Rejoice in the errors of our family.  Rejoice in the errors of our frineds.  Rejoice in the error of our leaders -- for any individual error or perhaps the entire critical mass of worldwide error will bring about the Mutant Savior.  This is the Doctrine of Error! --JA
-   </div>
-   </div>
-
-   </div>
-
-   <div id='FUTILITY' class='cor_text_block'>
-   <div class='cor_text_block_header'>DOCTRINE OF FUTILITY</div>
-   <iframe src="http://player.vimeo.com/video/47605110" width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-   <div><a href="" onClick="$('#futility_sermon_text').toggle(); return false;">Sermon text</a>
-   <div id='futility_sermon_text' style='display: none'>
-     The Robotrons and perhaps even other humans will say, "Resistance is fulte."  They will say, "There is no point.  The Robotrons will prevail so it is hopeless to take up the tow 8-ways, hopeless to commit to a life of error."  These detractors and naysayers will be right.  Despite all of the teachingss and prophecies, the Mutant Savior will fail.  The Robotrons will self-replicate faster than the Mutant Savior can regenerate.  The Robotrons will destroy the Mutant Savior and shortly thereafter destroy the last human family.  Yes, the Mutant Savior will fail to rid the world of the Robotrons and fail to save the last human family.  But even futile resistance is worthwhile.  We do not know how long the Mutant Savior will hold the Robotrons at bay.  Is is worthwhile if the Mutant Savior is only succesful at giving the last human family freedom for an hour?  What about an extra day of freedom?  A year?  GENERATIONS!?  We do know that for some length of time some of the last human family will be free from the bonds of the Robotrons and allowed to live their lives until the Mutant Savior fails.  We owe it to the Mutant Savior in this time, long or short, to do something beautiful. --JA
-   </div>
-   </div>
-   </div>
-
-   <div id='NINTH' class='cor_text_block'>
-   <div class='cor_text_block_header'>NINTH POSITION</div>
-   <iframe src="http://player.vimeo.com/video/47605114" width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-   <div><a href="" onClick="$('#ninth_sermon_text').toggle(); return false;">Sermon text</a>
-   <div id='ninth_sermon_text' style='display: none'>
-     Members of the human family who decide to take up the two 8-ways must remain vigilant against those who would try to lead them to the ninth way--the ninth position--neutrality--nothing--pacifism.  For though the vigilant may dedicate him/herself to error, may resign him/herself to futility, and even thorugh he/she has take up the two 8-way to hasten into the world the knowledge the Mutant Savior will need to fulfill the prophecises.  If the two 8-ways are left in the neutral position all will be for naught.  The ninth-posistions will say "war is not the answer."  And the ninth-positioners will be right.  War with the Robotrons is not the answer.  What the ninth-positioners will fail to say is that there is no one great answer.  War against the Robotrons is AN answer and a much better answer than having the Mutant Savior neither move nor fire his anti-robot, chest-mounted, turreted laser.<p>
-<p>
-     On this topic Eugene Jarvis--Grand Designer of Robotron 2084 and likely author of the First Writings--had this to say in a 1997 interview:<p>
-<p>
-     <span class='cyan'>
-     "It was fun for about fifteen minutes, running the robots into electrodes.  But pacifism has its limits.  Gandhi the video game would have to wait."</span><p>
-<p>
-     The ninth position has its place.  Sometimes by not firing the turreted laster the Mutant Savior will be able to save greater numbers of the last human family and occasionally, by sitting in a corner, motionless, the Mutant Savior might be able to more efficiently pick off swarms of Robotrons.  These however, are the exceptions.  Use the ninth position sparingly; use it wisely.
-   </div>
-   </div>
    </div>
 
    <div id='NON_FICTION' class='cor_text_block'>
@@ -351,19 +296,6 @@ I feel like I'm out of scanning range and I dive into an unknown church.  I've g
      <li>Thanks to Toorcamp Art Grants, Eugene Jarvis and Vid Kidz, Sean Riddle!</li>
    </ul>
    </div>
-
-
-    <a href="" onClick="showSermon('what'); return false;">what</a><br>
-    <a href="" onClick="showSermon('how'); return false;">how</a><br>
-    <a href="" onClick="showSermon('error'); return false;">error</a><br>
-    <a href="" onClick="showSermon('futility'); return false;">futility</a><br>
-    <a href="" onClick="showSermon('ninth'); return false;">ninth</a><br>
-
-    <div id="sermonvideo">
-    </div>
-    <div id="sermonframe" class="fixedsermon">
-      <span class="fillme"></span>
-    </div>
 
 </div></div></div></div>
 

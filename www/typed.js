@@ -258,12 +258,12 @@
 
             // Start & Stop currently not working
 
-            // , stop: function() {
-            //     var self = this;
+            , stopIt: function() {
+                var self = this;
 
-            //     self.stop = true;
-            //     clearInterval(self.timeout);
-            // }
+                self.stop = true;
+                clearTimeout(self.timeout);
+            }
 
             // , start: function() {
             //     var self = this;

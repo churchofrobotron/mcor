@@ -100,13 +100,24 @@ function pulseText(group)
 //fresh
 //
 //all content is appended to the html element specified by append_element
+var currLine = 0;
+
 function typetext(append_element, textarray, donecallback) {
+  $(append_element).empty();
   var shit = textarray.split("|");
+  currLine++;
+  var localCurrLine = currLine;
   var f = function(index) {
+    if (localCurrLine != currLine)
+      return;
     if (index < shit.length)
       type(append_element, shit[index], function() { f(index + 1); } );
     else {
-      donecallback();
+      if (donecallback) {
+        donecallback();
+      } else {
+        f(0);
+      }
     }
   };
   f(0);
@@ -141,6 +152,7 @@ function type(append_element, text, donefunc) {
     $(element).addClass("rt" + String(group));
     //$(element).data("group", group);
     $(append_element).append(element);
+    //$(element).typed("stopIt");
     $(element).typed({
       strings: [text],
       typeSpeed: 0,
@@ -206,7 +218,7 @@ sermons.how = "Only the Mutant Savior will have the power to stop a |1=Robotron.
            |BR2=We must gain this knowledge in |1=crowded, sweaty arcades!\
            |BROnly in this way will the Mutant Savior be able to |1=save the last human family!"
 
-sermons.error = "Just as the First Writings prophesy that the hubris of mankind will bring about the inevitable arrival of the |1=Robotrons|^300, so also do the First Writings tell of the |2=human family's salvation:\
+sermons.docerror = "Just as the First Writings prophesy that the hubris of mankind will bring about the inevitable arrival of the |1=Robotrons|^300, so also do the First Writings tell of the |2=human family's salvation:\
              |BRYou are the last hope of mankind.\
              |BR2=Due to a genetic engineering error, |1=you posses superhuman powers.| ^500Your mission is to stop the |1=Robotrons| and save the |1=last human family: ^500Mommy, ^500Daddy, ^500and Mikey.\
              |BRThe mutant Savior will arrive to save the last human family, but how?\
@@ -257,12 +269,13 @@ sermons.ninth = "Members of the human family who decide to take up the two 8-way
 var videos = {};
 videos.what = "http://player.vimeo.com/video/47605115";
 videos.how = "http://player.vimeo.com/video/47605113";
-videos.error = "http://player.vimeo.com/video/47609850";
+videos.docerror = "http://player.vimeo.com/video/47609850";
 videos.futility = "http://player.vimeo.com/video/47605110";
 videos.ninth = "http://player.vimeo.com/video/47605114";
 
-function showSermon(which) {
-  var newIframe = '<iframe src="' + videos[which] + '?autoplay=1" width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
+function showSermon(which, autostart) {
+  var autoText = autostart === true ? '?autoplay=1"' : '"';
+  var newIframe = '<iframe src="' + videos[which] + autoText + ' width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
   $("#sermonvideo").html(newIframe);
   typetext(".fillme", sermons[which] + "|XXX", null);
 }
