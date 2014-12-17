@@ -3,13 +3,15 @@ var numImage = 0;
 
 var startIndex = 0;
 var maxImage = 500;
+var restartNum = 15;
 
 function addImage() {
     var content = "";
     for (i = startIndex; i < currIndex; i++) {
         var img = scoreTable[i][3];
         var lnk = scoreTable[i][2].replace(" ", "+");
-        content += '<a href="all_time.html?filter='+lnk+'" target="_blank"><img src="data/' + img + '" width="200" height="164"></img>';
+        var title = scoreTable[i][0] + " " + scoreTable[i][1];
+        content += '<a href="all_time.html?filter='+lnk+'" target="_blank"><img src="data/' + img + '" width="200" height="164" title="'+title+'"></img>';
     }
     $("#wallcontent").html(content);
 }
@@ -35,7 +37,7 @@ $(document).ready(function() {
               currIndex = scoreTable.length;
           var scrollTop = false;
           if (currIndex - startIndex > maxImage) {
-              startIndex = currIndex;
+              startIndex = (currIndex - numImage) - restartNum;
               currIndex = startIndex + numImage;
               scrollTop = true;
           }
