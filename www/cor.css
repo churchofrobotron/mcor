@@ -38,7 +38,7 @@ body#sermon {
   text-align: left;
   padding: 80px 80px 40px 80px;
   width: 80%;
-  overflow: scroll;
+  overflow: hidden;
 }
 
 .fixedsermon {
