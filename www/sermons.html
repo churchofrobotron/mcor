@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>Sermons of COR</title>
+		<link rel='stylesheet' href='./cor.css'/>
+		<script type="text/javascript" src="./jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="./jquery.animate-colors-min.js"></script>
+		<script type="text/javascript" src="./cor.js"></script>
+		<script type="text/javascript" src="./json2.js"></script>
+		<script type="text/javascript" src="./typed.js"></script>
+<script>
+	  var data = [sermons.intro, sermons.what, sermons.how, sermons.error, sermons.futility, sermons.ninth];
+
+		var textfunc = function() {
+				var index = getUrlParameter("sermon");
+				if (index == null) {
+				  index = 0;
+				} else {
+					index = parseInt(index);
+					if (index >= data.length)
+						index = 0;
+				}
+				var cb = function() {
+					var href = window.location.href.replace(/[\?#].*|$/, "?sermon=" + String(index + 1));
+					window.location.href = href;
+				}
+				typetext(".fillme", data[index] + "|XXX", cb);
+     };
+</script>
+	</head>
+
+	<body id="sermon" onLoad='animatedSermonInit(true); textfunc();'>
+		<div id="sermonframe">
+			<span class="fillme"></span>
+		</p>
+		</body>
+
+</html>

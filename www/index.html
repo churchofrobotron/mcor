@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="json2.js"></script>
   <script type="text/javascript" src="typed.js"></script>
 </head>
-<body onLoad='pageInit(); animatedSermonInit(false); typetext(".fillme", sermons.intro + "|XXX", null);'>
+<body onLoad='pageInit(); animatedSermonInit(false); typetext(".fillme", sermons.intro + "|XXX", function() {});'>
 
 <div id='border1'><div id='border2'><div id='border3'><div id='border4'>
 
@@ -352,6 +352,15 @@ I feel like I'm out of scanning range and I dive into an unknown church.  I've g
    </ul>
    </div>
 
+
+    <a href="" onClick="showSermon('what'); return false;">what</a><br>
+    <a href="" onClick="showSermon('how'); return false;">how</a><br>
+    <a href="" onClick="showSermon('error'); return false;">error</a><br>
+    <a href="" onClick="showSermon('futility'); return false;">futility</a><br>
+    <a href="" onClick="showSermon('ninth'); return false;">ninth</a><br>
+
+    <div id="sermonvideo">
+    </div>
     <div id="sermonframe" class="fixedsermon">
       <span class="fillme"></span>
     </div>

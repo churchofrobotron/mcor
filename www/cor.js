@@ -254,3 +254,15 @@ sermons.ninth = "Members of the human family who decide to take up the two 8-way
               by sitting in a corner, ^500motionless, ^500the Mutant Savior might be able to more efficiently pick off swarms of |1=Robotrons.\
               |BRThese however, are the exceptions. Use the ninth position |1=sparingly; |use it |1=wisely.";
 
+var videos = {};
+videos.what = "http://player.vimeo.com/video/47605115";
+videos.how = "http://player.vimeo.com/video/47605113";
+videos.error = "http://player.vimeo.com/video/47609850";
+videos.futility = "http://player.vimeo.com/video/47605110";
+videos.ninth = "http://player.vimeo.com/video/47605114";
+
+function showSermon(which) {
+  var newIframe = '<iframe src="' + videos[which] + '?autoplay=1" width="500" height="369" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
+  $("#sermonvideo").html(newIframe);
+  typetext(".fillme", sermons[which] + "|XXX", null);
+}
