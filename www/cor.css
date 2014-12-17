@@ -13,7 +13,6 @@ body {
 	font-size: 28px;
 	color: #eeee00;
 	text-align: center;
-/*	overflow: hidden; */
 }
 
 ul {
@@ -29,6 +28,16 @@ ul {
 	color: cyan;
 }
 
+body#sermon {
+  overflow: hidden;
+}
+
+#sermonframe {
+	font-size: 28px;
+  line-height: 40px;
+  text-align: left;
+  padding: 80px 80px 40px 80px;
+}
 
 #border1 {
 	display: block;
