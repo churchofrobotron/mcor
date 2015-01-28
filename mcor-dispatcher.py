@@ -89,6 +89,9 @@ def send_heartbeat(num):
 def send_game_over():
    send_command("GameOver\n")
 
+def send_extra_player():
+   send_command("XP\n")
+
 #
 # Scoreboard
 #
@@ -239,9 +242,17 @@ def save_player_face():
 
 dump_hex = lambda x: " ".join([hex(ord(c))[2:].zfill(2) for c in x])
 
+def play_extra_life():
+  os.system("play -q extra_life.wav &")
+
+def power_on_test():
+  play_extra_life()
+
 # XXX wrap in a catchall to turn off everything that may be running, in case
 #     of unexpected error
 def main(argv=None):
+   power_on_test()
+
    #global last_time
    start_time = None
    last_beat = time.time()
@@ -270,6 +281,8 @@ def main(argv=None):
 
    scan_interval = 2
    scan = time.time() - scan_interval
+
+   last_extra_man_score = 0
 
    print "Waiting for data..."
    while True:
@@ -307,6 +320,7 @@ def main(argv=None):
                start_time = time.time()
                send_start()
                start_capture()
+               last_extra_man_score = 0
             if (msg.startswith("GameOver")):
                gamerunning = False
                start_time = None
@@ -332,7 +346,18 @@ def main(argv=None):
                # Watchpoint based events need gamerunning check
                if (gamerunning):
                   score = msg.split(",")[1]
-                  # print score
+                  try:
+                    score_int = int(score)
+                    # For reset!
+                    if (score_int < last_extra_man_score):
+                      last_extra_man_score = score_int
+                    if (score_int - last_extra_man_score >= 25000):
+                      last_extra_man_score = score_int
+                      send_extra_player()
+                      play_extra_life()
+                      print "Extra mutant!"
+                  except Exception, e:
+                    pass
             if (msg.startswith("HumanSaved")):
                print "Human Saved!  Praise the Mutant!"
             if (msg.startswith("HumanKilled")):
