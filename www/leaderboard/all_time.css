@@ -184,3 +184,8 @@ table.scores_display
 ul {
 	list-style-type: none;
 }
+
+.red {
+	color: red;
+}
+
