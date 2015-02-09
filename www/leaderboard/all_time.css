@@ -143,7 +143,7 @@ body {
 
 table.scores_display
 {
-    margin-left:auto; 
+    margin-left:auto;
     margin-right:auto;
     text-align: center;
 }
@@ -162,7 +162,7 @@ table.scores_display
 }
 
 .paginate_disabled_next {
-	display: none;	
+	display: none;
 }
 
 .paginate_disabled_previous {
@@ -179,4 +179,8 @@ table.scores_display
 
 .sorting_asc {
     cursor:pointer;
+}
+
+ul {
+	list-style-type: none;
 }
