@@ -29,7 +29,7 @@ $(document).ready(function() {
                 "sClass": "center",
                 "fnRender": function(obj) {
                     var sReturn = obj.aData[ obj.iDataColumn ];
-                    sReturn = "<img src='data/" + sReturn + "' width='176' height='144'></img>"
+                    sReturn = "<a href='?filter=" + sReturn + "'><img src='data/" + sReturn + "' width='176' height='144'></img></a>"
                     return sReturn;
                 }
             },
