@@ -296,7 +296,8 @@ def main(argv=None):
    scan_interval = 2
    scan = time.time() - scan_interval
 
-   last_extra_man_score = 0
+   EXTRA_MUTANT = 25000
+   next_extra_mutant_score = EXTRA_MUTANT
 
    print "Waiting for data..."
    while True:
@@ -333,7 +334,7 @@ def main(argv=None):
                start_time = time.time()
                send_start()
                start_capture()
-               last_extra_man_score = 0
+               next_extra_mutant_score = EXTRA_MUTANT
                if (capture_score):
                   if (parse_scoreboard("NewScores,Latest,FF FF FF,"+str(last_score))):
                     print "NEW MUTANT SAVIOR!"
@@ -371,10 +372,8 @@ def main(argv=None):
                     score_int = int(score)
                     last_score = score_int
                     # For reset!
-                    if (score_int < last_extra_man_score):
-                      last_extra_man_score = score_int
-                    if (score_int - last_extra_man_score >= 25000):
-                      last_extra_man_score = score_int
+                    if (score_int >= next_extra_mutant_score):
+                      next_extra_mutant_score = next_extra_mutant_score + EXTRA_MUTANT
                       send_extra_player()
                       play_extra_life()
                       print "Extra mutant!"
