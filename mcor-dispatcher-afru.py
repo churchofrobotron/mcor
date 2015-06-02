@@ -283,6 +283,9 @@ def main(argv=None):
 
    gamerunning = False
 
+   capture_score = False
+   last_score = 0
+
    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -298,7 +301,6 @@ def main(argv=None):
    print "Waiting for data..."
    while True:
       try:
-         # Commented out for quick VR hack, we'll need to re-enable this for effects.
          if (time.time() - scan >= scan_interval):
            find_devices()
            scan = time.time()
@@ -332,23 +334,29 @@ def main(argv=None):
                send_start()
                start_capture()
                last_extra_man_score = 0
+               if (capture_score):
+                  if (parse_scoreboard("NewScores,Latest,FF FF FF,"+str(last_score))):
+                    print "NEW MUTANT SAVIOR!"
+               capture_score = True
+               last_score = 0
             if (msg.startswith("GameOver")):
                gamerunning = False
                start_time = None
                send_end()
                start = time.time()
-	       send_game_over()
+               send_game_over()
                while (time.time() - start < post_game_over_seconds):
                   capture_if_needed()
                   time.sleep(capture_delay * 0.5)
                save_player_face()
                stop_capture()
             if (msg.startswith("PlayerDeath")):
-	       send_player_killed()
+               send_player_killed()
                print "PlayerDeath!"
             if (msg.startswith("NewScores")):
                if (parse_scoreboard(msg)):
                   print "NEW MUTANT SAVIOR!"
+               capture_score = False
             if (msg.startswith("WaveNum")):
                # Watchpoint based events need gamerunning check
                if (gamerunning):
@@ -361,6 +369,7 @@ def main(argv=None):
                   score = msg.split(",")[1]
                   try:
                     score_int = int(score)
+                    last_score = score_int
                     # For reset!
                     if (score_int < last_extra_man_score):
                       last_extra_man_score = score_int
