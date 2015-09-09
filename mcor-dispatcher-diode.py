@@ -228,7 +228,7 @@ def capture_if_needed():
       return
    if ((last_capture != None) and (time.time() - last_capture < capture_delay)):
       return
-   
+
    frame = cv.QueryFrame(capture_handle)
    mat = cv.GetMat(frame)
    smallerImage = cv.CreateImage( (320, 200), frame.depth, frame.nChannels)
@@ -269,7 +269,7 @@ def power_on_test():
    send_start()
    send_humankilled()
    send_laser_enforcer()
-   print "sleeping for 30sec"
+   print "sleeping for 3sec"
    time.sleep(3)
    send_end()
    time.sleep(1)
@@ -310,7 +310,7 @@ def main(argv=None):
 #      sys.exit(1)
 
 #   port = int(argv[1])
-   
+
 
    dump_udp = False
 #   if (len(argv) > 2):
