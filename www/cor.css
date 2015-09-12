@@ -173,8 +173,10 @@ body#sermon {
 .flyer {
 	width: 250px;
 	height: 326px;
-	background-image: url('cor-byteme4_3.png');
-	background-size: 250px 326px;
+	background-image: url('cor_1010.jpg');
+	background-size: 250px 188px;
+	background-position: 0px 69px;
+	background-repeat: no-repeat;
 	overflow: hidden;
 }
 .flyer_hilite {
