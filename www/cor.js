@@ -234,7 +234,7 @@ sermons.how =
            |BR2=We must gain this knowledge in |1=crowded, sweaty arcades!\
            |BROnly in this way will the Mutant Savior be able to |1=save the last human family!'
 
-sermons.docerror =
+sermons.error =
     'Just as the First Writings prophesy that the hubris of mankind will bring about the inevitable arrival of the |1=Robotrons|^300, so also do the First Writings tell of the |2=human family\'s salvation:\
              |BRYou are the last hope of mankind.\
              |BR2=Due to a genetic engineering error, |1=you posses superhuman powers.| ^500Your mission is to stop the |1=Robotrons| and save the |1=last human family: ^500Mommy, ^500Daddy, ^500and Mikey.\
@@ -287,7 +287,7 @@ sermons.ninth =
 var videos = {};
 videos.what = 'http://player.vimeo.com/video/47605115';
 videos.how = 'http://player.vimeo.com/video/47605113';
-videos.docerror = 'http://player.vimeo.com/video/47609850';
+videos.error = 'http://player.vimeo.com/video/47609850';
 videos.futility = 'http://player.vimeo.com/video/47605110';
 videos.ninth = 'http://player.vimeo.com/video/47605114';
 
