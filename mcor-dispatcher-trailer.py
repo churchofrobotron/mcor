@@ -52,7 +52,7 @@ def find_devices(old_devices):
    ret = []
    potential_devices = glob.glob(DEV_TTY_PREFIX)
    for dev_name in potential_devices:
-      try:                    
+      try:
          ret.append(serial.Serial(dev_name))
       except:
          print("Unable to open " + dev_name)
@@ -248,7 +248,6 @@ def main(argv=None):
    #exit()
 
    # Setup
-   serial_scan = time.time()
    devices = find_devices([])
    try:
       game_serial = serial.Serial(DEV_FPGA_PORT, 115200, timeout=0)
@@ -258,15 +257,15 @@ def main(argv=None):
 
    # Main loop!
    game_state = GameState()
-   game_start_time = time.time()
    last_beat = None # send heartbeat to lazers so they don't stay on forever.
    capture_score_game_start = False # Deal with case where game starts before intials are entered
 
+   serial_scan = time.time() - SERIAL_SCAN_INTERVAL - 1.0 # Force serial scan
    while True:
       # Look for new devices
       if time.time() - serial_scan >= SERIAL_SCAN_INTERVAL:
-         game_state.devices = find_devices(devices)
-         scan = time.time()
+         game_state.devices = find_devices(game_state.devices)
+         serial_scan = time.time()
 
       # Look for new events
       if game_serial:
@@ -291,6 +290,11 @@ def main(argv=None):
             game_state.current_score = 0
             game_state.next_life = EXTRA_MUTANT
             start_capture(game_state)
+         else:
+            if time.time() - last_beat > 5:
+               send_command("BEAT1:" + "{0:x}\n".format(int(time.time() - start_time)), game_state)
+               last_beat = time.time()
+
       else:
          start_time = None
          last_beat = None
