@@ -6,6 +6,8 @@ import serial
 import struct
 import sys
 import time
+import datetime
+import math
 from picamera import PiCamera
 from PIL import Image
 from io import BytesIO
@@ -23,7 +25,7 @@ FRAMES_PER_SECOND = 4.0
 CAPTURE_DELAY = 1.0 / FRAMES_PER_SECOND
 NUM_PHOTO_FRAMES = FRAMES_PER_SECOND * SECONDS_TO_CAPTURE
 LEADERBOARD_DIR = "./leaderboard/"
-GIF_FRAME_DURATION = Int(CAPTURE_DELAY * 1000 * 0.5)
+GIF_FRAME_DURATION = math.floor(CAPTURE_DELAY * 1000 * 0.5)
 ALTAR_ID = "TEARDOWN"
 
 class GameState():
@@ -32,7 +34,7 @@ class GameState():
 		self.serial_devices = []
 		self.next_life = EXTRA_MUTANT
 		self.current_score = 0
-		self.capturing = false
+		self.capturing = False
 		self.camera = None
 		self.last_capture = None
 		self.deathface_frames = []
@@ -46,16 +48,16 @@ def find_devices(old_devices):
 			print("Error closing device")
 	ret = []
 	potential_devices = glob.glob(DEV_TTY_PREFIX)
-	for dev_names in potential_devices:
-		try:
+	for dev_name in potential_devices:
+		try:                    
 			ret.append(serial.Serial(dev_name))
 		except:
 			print("Unable to open " + dev_name)
 	return ret
 
 def send_command(c, game_state):
-	for dev in game_state.serial_devices:
-		dev.write(c)
+   for dev in game_state.serial_devices:
+      dev.write(c.encode())
 
 # Death face routines
 def start_capture(game_state):
@@ -66,44 +68,44 @@ def start_capture(game_state):
 	game_state.last_capture = None
 
 def capture_if_needed(game_state):
-	if game_state.capturing == False:
-		return
-	if game_state.last_capture != None and time.time() - game_state.last_capture < CAPTURE_DELAY:
-		return
+   if game_state.capturing == False:
+      return
+   if game_state.last_capture != None and time.time() - game_state.last_capture < CAPTURE_DELAY:
+      return
 
-	stream = BytesIO()
-	game_state.camera.capture(stream, format='gif')
-	stream.seek(0)
-	game_state.deathface_frames.append(Image.open(stream))
-	if len(game_state.deathface_frames) > NUM_PHOTO_FRAMES:
-		del game_state.deathface_frames[0]
-	game_state.last_capture = time.time()
+   game_state.last_capture = time.time()
+   stream = BytesIO()
+   game_state.camera.capture(stream, format='bgr', use_video_port=True)
+   stream.seek(0)
+   game_state.deathface_frames.append(Image.frombytes("RGB", (320, 208), stream.read(-1)))
+   if len(game_state.deathface_frames) > NUM_PHOTO_FRAMES:
+      del game_state.deathface_frames[0]
 
 def end_capture(game_state):
 	game_state.capturing = False
 
 def save_player_face(game_state):
-	print "Saving deathface"
-	leaderboard_photocapture = os.path.join(LEADERBOARD_DIR, "photo_capture")
-	face_path = os.path.join(leaderboard_photocapture, "deathface.gif")
-	# TODO: Look into PICamera's circular buffers.
-	if len(game_state.deathface_frames) > 0:
-		game_state.deathface_frames[0].save(face_path, save_all=True, append_images=game_state.deathface_frames[1:], duration=GIF_FRAME_DURATION, loop=0)
+   print("Saving deathface")
+   leaderboard_photocapture = os.path.join(LEADERBOARD_DIR, "photo_capture")
+   face_path = os.path.join(leaderboard_photocapture, "deathface.gif")
+   # TODO: Look into PICamera's circular buffers.
+   if len(game_state.deathface_frames) > 0:
+      game_state.deathface_frames[0].save(face_path, save_all=True, append_images=game_state.deathface_frames[1:], duration=GIF_FRAME_DURATION, loop=0)
 
 # Scoreboard
 def save_scoreboard(initials, score):
-	source = os.path.join(leaderboard_photocapture, "deathface.gif")
-	leaderboard_data = os.path.join(LEADERBOARD_DIR, "data")
-	# TODO: Deal with binary initials, switch : to space.
-	basename = = initials.strip() + "_" + str(score) + "_" + datetime.datetime.now().isoformat() + "_" + ALTAR_ID
-	dest = os.path.join(leaderboard_data, basename + ".gif")
-	try:
-			shutil.move(source, dest)
-	except:
-			print "Error moving" + source + " to " + dest
-	# Notify scoreboard that there is a new score.
-	with open(basename + ".new", "w"):
-		pass
+   source = os.path.join(leaderboard_photocapture, "deathface.gif")
+   leaderboard_data = os.path.join(LEADERBOARD_DIR, "data")
+   # TODO: Deal with binary initials, switch : to space.
+   basename = initials.strip() + "_" + str(score) + "_" + datetime.datetime.now().isoformat() + "_" + ALTAR_ID
+   dest = os.path.join(leaderboard_data, basename + ".gif")
+   try:
+      shutil.move(source, dest)
+   except:
+      print("Error moving" + source + " to " + dest)
+      # Notify scoreboard that there is a new score.
+      with open(basename + ".new", "w"):
+         pass
 
 # Event routines
 def score_bcd_to_int(bcd_int):
@@ -203,21 +205,30 @@ handler_map = {
 }
 
 # POST
-def test_command(cmd, text = None):
+def test_command(state, cmd, text = None):
 	print(cmd if text is None else text)
-	send_command(cmd + "\n")
+	send_command(cmd + "\n", state)
 	time.sleep(1)
 
 def power_on_self_test():
-	print("POWER ON TEST")
-	test_command("GameStart")
-	test_command("HumanKilled", text = "Flappers")
-	test_command("3on", text = "Death Whistle")
-	test_command("WaveNum1", text = "Puffers")
-	test_command("LAS1:G", text = "Lasers")
-	test_command("XP", text = "Knockers")
-	test_command("GameOver")
-	test_command("END1:666")
+   test_state = GameState()
+   print("Camera test")
+   start_capture(test_state)
+   start_time = time.time()
+   while time.time() - start_time < 2:
+      capture_if_needed(test_state)
+   end_capture(test_state)
+   save_player_face(test_state)
+   test_state.serial_devices = find_devices([])
+   print("POWER ON TEST, Devices Found: " + str(len(test_state.serial_devices)))
+   test_command(test_state, "GameStart")
+   test_command(test_state, "HumanKilled", text = "Flappers")
+   test_command(test_state, "3on", text = "Death Whistle")
+   test_command(test_state, "WaveNum1", text = "Puffers")
+   test_command(test_state, "LAS1:G", text = "Lasers")
+   test_command(test_state, "XP", text = "Knockers")
+   test_command(test_state, "GameOver")
+   test_command(test_state, "END1:666")
 
 # Main loop
 def main(argv=None):
