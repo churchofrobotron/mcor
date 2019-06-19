@@ -13,11 +13,11 @@ import glob
 import traceback
 import images2gif
 import numpy as np
-import PIL
-import cv
-import datetime
-import requests
-import datetime
+# import PIL
+# import cv
+# import datetime
+# import requests
+# import datetime
 
 # CONFIG
 scores_extension = ".gif"
@@ -47,7 +47,7 @@ def usage():
   print " mcor-disatcher <port> (2084 of course bitz)"
 
 #
-# Device interface
+# Device interface©
 #
 def find_devices():
    global serial_devices
@@ -251,18 +251,20 @@ def play_extra_life():
 def power_on_test():
   print "POWER ON TEST"
   time.sleep(1)
-  #send_start()
-  #send_player_killed()
-  #time.sleep(1)
-  #send_game_over()
-  #time.sleep(1)
-  #send_wave(1)
+  send_start()
+  send_humankilled()
+#   send_player_killed()
+#   time.sleep(1)
+#   send_game_over()
+#   time.sleep(1)
+#   send_wave(1)
 
 # XXX wrap in a catchall to turn off everything that may be running, in case
 #     of unexpected error
 def main(argv=None):
    find_devices()
    power_on_test()
+   exit()
 
    #global last_time
    start_time = None
