@@ -69,7 +69,7 @@ handler_map = {
 	0xf0: event_boot,
 }
 
-s = serial.Serial('/dev/ttyUSB0', 115200)
+s = serial.Serial('/dev/ttyS0', 115200)
 
 while True:
 	c = s.read(1)[0]

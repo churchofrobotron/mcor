@@ -18,7 +18,7 @@ DEV_FPGA_PORT = "/dev/ttyS0"
 DEV_TTY_PREFIX = "/dev/ttyACM*" if not os.path.isfile("dev-mode") else "/dev/tty.usbmodem*"
 if (os.path.isfile("dev-mode")):
    print("Override config for development.")
-SERIAL_SCAN_INTERVAL = 2.0
+SERIAL_SCAN_INTERVAL = 20.0
 BEAT_INTERVAL = 5
 EXTRA_MUTANT = 25000
 SECONDS_TO_CAPTURE = 4.0
@@ -74,8 +74,10 @@ def capture_if_needed(game_state):
    if game_state.capturing == False:
       return
    if game_state.last_capture != None and time.time() - game_state.last_capture < CAPTURE_DELAY:
+      print("Too early")
       return
 
+   print("Capturing")
    game_state.last_capture = time.time()
    stream = BytesIO()
    game_state.camera.capture(stream, format='bgr', use_video_port=True)
@@ -96,6 +98,9 @@ def save_player_face(game_state):
    if len(game_state.deathface_frames) > 0:
       game_state.deathface_frames[0].save(face_path, save_all=True, append_images=game_state.deathface_frames[1:], duration=GIF_FRAME_DURATION, loop=0)
       game_state.deathface_frames = []
+   else:
+      print("No frames, no fame!")
+   print("Save death face complete")
 
 # Scoreboard
 def save_scoreboard(initials, score):
@@ -111,7 +116,8 @@ def save_scoreboard(initials, score):
    dest = os.path.join(leaderboard_data, basename + ".gif")
    try:
       shutil.move(source, dest)
-   except:
+   except Exception as e:
+      print(e)
       print("Error moving" + source + " to " + dest)
       # Notify scoreboard that there is a new score.
    with open(os.path.join(leaderboard_data, basename + ".new"), "w"):
@@ -189,7 +195,7 @@ def event_still_trying(s, game_state):
    print('still_trying')
 
 def event_player_death(s, game_state):
-   send_command("3on\n", game_state) # Death whistle!!
+   send_command("PlayerDeath\n", game_state) # Death whistle!!
    print('player_death')
 
 def event_game_start(s, game_state):
@@ -230,12 +236,13 @@ def power_on_self_test():
       capture_if_needed(test_state)
    end_capture(test_state)
    save_player_face(test_state)
+   save_scoreboard(b"AZY", 100)
+   return
    test_state.serial_devices = find_devices([])
-   save_scoreboard("BTR", 100)
    print("POWER ON TEST, Devices Found: " + str(len(test_state.serial_devices)))
    test_command(test_state, "GameStart")
    test_command(test_state, "HumanKilled", text = "Flappers")
-   test_command(test_state, "3on", text = "Death Whistle")
+   test_command(test_state, "PlayerDeath", text = "Death Whistle")
    test_command(test_state, "WaveNum1", text = "Puffers")
    test_command(test_state, "LAS1:G", text = "Lasers")
    test_command(test_state, "XP", text = "Knockers")
@@ -248,9 +255,8 @@ def main(argv=None):
    #exit()
 
    # Setup
-   devices = find_devices([])
    try:
-      game_serial = serial.Serial(DEV_FPGA_PORT, 115200, timeout=0)
+      game_serial = serial.Serial(DEV_FPGA_PORT, 115200, timeout=0.01)
    except:
       print("Unable to find FPGA serial port!!")
       game_serial = None
@@ -264,7 +270,8 @@ def main(argv=None):
    while True:
       # Look for new devices
       if time.time() - serial_scan >= SERIAL_SCAN_INTERVAL:
-         game_state.devices = find_devices(game_state.devices)
+         game_state.serial_devices = find_devices(game_state.serial_devices)
+         print("Found devices: " + str(len(game_state.serial_devices)))
          serial_scan = time.time()
 
       # Look for new events
@@ -291,7 +298,9 @@ def main(argv=None):
             game_state.next_life = EXTRA_MUTANT
             start_capture(game_state)
          else:
+            capture_if_needed(game_state)
             if time.time() - last_beat > 5:
+               print("send beat")
                send_command("BEAT1:" + "{0:x}\n".format(int(time.time() - start_time)), game_state)
                last_beat = time.time()
 
