@@ -74,7 +74,6 @@ def capture_if_needed(game_state):
    if game_state.capturing == False:
       return
    if game_state.last_capture != None and time.time() - game_state.last_capture < CAPTURE_DELAY:
-      print("Too early")
       return
 
    print("Capturing")
@@ -303,7 +302,6 @@ def main(argv=None):
                print("send beat")
                send_command("BEAT1:" + "{0:x}\n".format(int(time.time() - start_time)), game_state)
                last_beat = time.time()
-
       else:
          start_time = None
          last_beat = None
