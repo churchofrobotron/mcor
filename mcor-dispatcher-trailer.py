@@ -76,7 +76,6 @@ def capture_if_needed(game_state):
    if game_state.last_capture != None and time.time() - game_state.last_capture < CAPTURE_DELAY:
       return
 
-   print("Capturing")
    game_state.last_capture = time.time()
    stream = BytesIO()
    game_state.camera.capture(stream, format='bgr', use_video_port=True)
@@ -177,7 +176,9 @@ def event_game_over(s, game_state):
       time.sleep(CAPTURE_DELAY * 0.5)
    save_player_face(game_state)
    end_capture(game_state)
+   game_state.game_running = False
    print('game over complete')
+
 
 def event_grunt_killed_by_electrode(s, game_state):
 #   print('grunt_killed_by_electrode')
