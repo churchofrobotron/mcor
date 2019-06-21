@@ -20,6 +20,8 @@ if (os.path.isfile("dev-mode")):
    print("Override config for development.")
 SERIAL_SCAN_INTERVAL = 20.0
 BEAT_INTERVAL = 5
+FOG_INTERVAL_SECONDS = 45
+FOG_INTERVAL_LEVEL_10_SECONDS = 30
 EXTRA_MUTANT = 25000
 SECONDS_TO_CAPTURE = 4.0
 POST_GAME_OVER_SECONDS = 3.0
@@ -34,21 +36,22 @@ class GameState():
    def __init__(self):
       self.game_running = False
       self.serial_devices = []
-      self.next_life = EXTRA_MUTANT
-      self.current_score = 0
       self.capturing = False
       self.camera = None
       self.last_capture = None
       self.deathface_frames = []
+      self.current_wave = 0
+      self.next_life = EXTRA_MUTANT
+      self.current_score = 0
 
+   def stop_game():
+      self.current_score = 0
+      self.current_wave = 0
+      self.next_life = EXTRA_MUTANT
 
 # Device code
 def find_devices(old_devices):
-   for dev in old_devices:
-      try:
-         dev.close()
-      except:
-         print("Error closing device")
+   close_devices(old_devices)
    ret = []
    potential_devices = glob.glob(DEV_TTY_PREFIX)
    for dev_name in potential_devices:
@@ -57,6 +60,13 @@ def find_devices(old_devices):
       except:
          print("Unable to open " + dev_name)
    return ret
+
+def close_devices(old_devices):
+   for dev in old_devices:
+      try:
+         dev.close()
+      except:
+         print("Error closing device")
 
 def send_command(c, game_state):
    for dev in game_state.serial_devices:
@@ -118,9 +128,6 @@ def save_scoreboard(initials, score):
    except Exception as e:
       print(e)
       print("Error moving" + source + " to " + dest)
-      # Notify scoreboard that there is a new score.
-   with open(os.path.join(leaderboard_data, basename + ".new"), "w"):
-      pass
 
 # Event routines
 def score_bcd_to_int(bcd_int):
@@ -235,8 +242,7 @@ def power_on_self_test():
       capture_if_needed(test_state)
    end_capture(test_state)
    save_player_face(test_state)
-   save_scoreboard(b"AZY", 100)
-   return
+   save_scoreboard(b"TST", 100)
    test_state.serial_devices = find_devices([])
    print("POWER ON TEST, Devices Found: " + str(len(test_state.serial_devices)))
    test_command(test_state, "GameStart")
@@ -247,6 +253,7 @@ def power_on_self_test():
    test_command(test_state, "XP", text = "Knockers")
    test_command(test_state, "GameOver")
    test_command(test_state, "END1:666")
+   close_devices(test_state.serial_devices)
 
 # Main loop
 def main(argv=None):
@@ -264,6 +271,7 @@ def main(argv=None):
    game_state = GameState()
    last_beat = None # send heartbeat to lazers so they don't stay on forever.
    capture_score_game_start = False # Deal with case where game starts before intials are entered
+   last_fog = time.time()
 
    serial_scan = time.time() - SERIAL_SCAN_INTERVAL - 1.0 # Force serial scan
    while True:
@@ -293,15 +301,18 @@ def main(argv=None):
 
             start_time = time.time()
             last_beat = time.time() - BEAT_INTERVAL
-            game_state.current_score = 0
-            game_state.next_life = EXTRA_MUTANT
+            game_state.stop_game()
             start_capture(game_state)
          else:
             capture_if_needed(game_state)
             if time.time() - last_beat > 5:
-               print("send beat")
                send_command("BEAT1:" + "{0:x}\n".format(int(time.time() - start_time)), game_state)
                last_beat = time.time()
+
+            fog_interval = FOG_INTERVAL_SECONDS if game_state.wave < 10 else FOG_INTERVAL_LEVEL_10_SECONDS
+            if time.time() - last_fog > fog_interval:
+               send_command("Fog")
+               last_fog = time.time()
       else:
          start_time = None
          last_beat = None
