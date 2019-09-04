@@ -31,7 +31,7 @@ CAPTURE_DELAY = 1.0 / FRAMES_PER_SECOND
 NUM_PHOTO_FRAMES = FRAMES_PER_SECOND * SECONDS_TO_CAPTURE
 LEADERBOARD_DIR = "./leaderboard/"
 GIF_FRAME_DURATION = math.floor(CAPTURE_DELAY * 1000 * 0.5)
-ALTAR_ID = "TEARDOWN"
+ALTAR_ID = os.environ['COR_ID']
 
 class GameState():
    def __init__(self):
