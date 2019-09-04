@@ -14,6 +14,7 @@ from picamera import PiCamera
 from PIL import Image
 from io import BytesIO
 
+USE_CAMERA = True
 DEV_FPGA_PORT = "/dev/ttyS0"
 DEV_TTY_PREFIX = "/dev/ttyACM*" if not os.path.isfile("dev-mode") else "/dev/tty.usbmodem*"
 if (os.path.isfile("dev-mode")):
@@ -44,7 +45,7 @@ class GameState():
       self.next_life = EXTRA_MUTANT
       self.current_score = 0
 
-   def stop_game():
+   def stop_game(self):
       self.current_score = 0
       self.current_wave = 0
       self.next_life = EXTRA_MUTANT
@@ -74,11 +75,11 @@ def send_command(c, game_state):
 
 # Death face routines
 def start_capture(game_state):
-   if game_state.camera is None:
+   if game_state.camera is None and USE_CAMERA:
       game_state.camera = PiCamera()
       game_state.camera.resolution = (320, 208)
-   game_state.capturing = True
-   game_state.last_capture = None
+      game_state.capturing = True
+      game_state.last_capture = None
 
 def capture_if_needed(game_state):
    if game_state.capturing == False:
@@ -310,9 +311,9 @@ def main(argv=None):
                send_command("BEAT1:" + "{0:x}\n".format(int(time.time() - start_time)), game_state)
                last_beat = time.time()
 
-            fog_interval = FOG_INTERVAL_SECONDS if game_state.wave < 10 else FOG_INTERVAL_LEVEL_10_SECONDS
+            fog_interval = FOG_INTERVAL_SECONDS if game_state.current_wave < 10 else FOG_INTERVAL_LEVEL_10_SECONDS
             if time.time() - last_fog > fog_interval:
-               send_command("Fog")
+               send_command("Fog", game_state)
                last_fog = time.time()
       else:
          start_time = None
