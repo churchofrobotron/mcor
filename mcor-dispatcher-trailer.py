@@ -44,6 +44,7 @@ class GameState():
       self.current_wave = 0
       self.next_life = EXTRA_MUTANT
       self.current_score = 0
+      self.capture_score_game_start = False
 
    def stop_game(self):
       self.current_score = 0
@@ -78,8 +79,8 @@ def start_capture(game_state):
    if game_state.camera is None and USE_CAMERA:
       game_state.camera = PiCamera()
       game_state.camera.resolution = (320, 208)
-      game_state.capturing = True
-      game_state.last_capture = None
+   game_state.capturing = True
+   game_state.last_capture = None
 
 def capture_if_needed(game_state):
    if game_state.capturing == False:
@@ -149,6 +150,7 @@ def event_nvram_dump(s, game_state):
    score = score_bcd_to_int(score)
    print('nvram_dump=%s,%s' % (score, initials))
    save_scoreboard(initials, score)
+   game_state.capture_score_game_start = False
 
 def event_wave_change(s, game_state):
    data = read_bytes(s, 1)
@@ -186,7 +188,6 @@ def event_game_over(s, game_state):
    end_capture(game_state)
    game_state.game_running = False
    print('game over complete')
-
 
 def event_grunt_killed_by_electrode(s, game_state):
 #   print('grunt_killed_by_electrode')
@@ -272,7 +273,7 @@ def main(argv=None):
    # Main loop!
    game_state = GameState()
    last_beat = None # send heartbeat to lazers so they don't stay on forever.
-   capture_score_game_start = False # Deal with case where game starts before intials are entered
+   # capture_score_game_start = False # Deal with case where game starts before intials are entered
    last_fog = time.time()
 
    serial_scan = time.time() - SERIAL_SCAN_INTERVAL - 1.0 # Force serial scan
@@ -297,9 +298,9 @@ def main(argv=None):
             # Check to see if we should save the last score to the scoreboard
             # before resetting state.  This can happen if the player hits start
             # before the enter initials screen is complete.
-            if capture_score_game_start:
+            if game_state.capture_score_game_start:
                save_scoreboard(None, game_state.current_score)
-            capture_score_game_start = True
+            game_state.capture_score_game_start = True
 
             start_time = time.time()
             last_beat = time.time() - BEAT_INTERVAL
