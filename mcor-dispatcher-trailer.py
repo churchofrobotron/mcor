@@ -314,7 +314,8 @@ def main(argv=None):
 
             fog_interval = FOG_INTERVAL_SECONDS if game_state.current_wave < 10 else FOG_INTERVAL_LEVEL_10_SECONDS
             if time.time() - last_fog > fog_interval:
-               send_command("Fog", game_state)
+               print("Sending fog")
+               send_command("Fog\n", game_state)
                last_fog = time.time()
       else:
          start_time = None
