@@ -47,6 +47,7 @@ function pageInit() {
   } else {
     showSermon('what', false);
   }
+  document.getElementById('years-remaining').textContent = 2084 - new Date().getFullYear();
 }
 
 function animatedSermonInit(scrollBody) {
