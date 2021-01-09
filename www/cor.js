@@ -48,6 +48,7 @@ function pageInit() {
     showSermon('what', false);
   }
   document.getElementById('years-remaining').textContent = 2084 - new Date().getFullYear();
+  document.getElementById('total-tests').textContent = summaryTable.TOTAL;
 }
 
 function animatedSermonInit(scrollBody) {
