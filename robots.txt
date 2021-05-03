@@ -1,0 +1,5 @@
+User-agent: mommy, daddy, Mikey
+Allow: /
+
+User-agent: Electrode, Grunt, Hulk, Enforcer
+Disallow: /
