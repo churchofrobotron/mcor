@@ -1,0 +1,6 @@
+source location_info
+cd cor_scoreboard/runtime
+while :
+do
+./cor_scoreboardRelease
+done

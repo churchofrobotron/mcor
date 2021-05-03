@@ -14,6 +14,7 @@ from picamera import PiCamera
 from PIL import Image
 from io import BytesIO
 
+USE_CAMERA = True
 DEV_FPGA_PORT = "/dev/ttyS0"
 DEV_TTY_PREFIX = "/dev/ttyACM*" if not os.path.isfile("dev-mode") else "/dev/tty.usbmodem*"
 if (os.path.isfile("dev-mode")):
@@ -30,7 +31,7 @@ CAPTURE_DELAY = 1.0 / FRAMES_PER_SECOND
 NUM_PHOTO_FRAMES = FRAMES_PER_SECOND * SECONDS_TO_CAPTURE
 LEADERBOARD_DIR = "./leaderboard/"
 GIF_FRAME_DURATION = math.floor(CAPTURE_DELAY * 1000 * 0.5)
-ALTAR_ID = "TEARDOWN"
+ALTAR_ID = os.environ['COR_ID']
 
 class GameState():
    def __init__(self):
@@ -43,8 +44,9 @@ class GameState():
       self.current_wave = 0
       self.next_life = EXTRA_MUTANT
       self.current_score = 0
+      self.capture_score_game_start = False
 
-   def stop_game():
+   def stop_game(self):
       self.current_score = 0
       self.current_wave = 0
       self.next_life = EXTRA_MUTANT
@@ -74,7 +76,7 @@ def send_command(c, game_state):
 
 # Death face routines
 def start_capture(game_state):
-   if game_state.camera is None:
+   if game_state.camera is None and USE_CAMERA:
       game_state.camera = PiCamera()
       game_state.camera.resolution = (320, 208)
    game_state.capturing = True
@@ -148,6 +150,7 @@ def event_nvram_dump(s, game_state):
    score = score_bcd_to_int(score)
    print('nvram_dump=%s,%s' % (score, initials))
    save_scoreboard(initials, score)
+   game_state.capture_score_game_start = False
 
 def event_wave_change(s, game_state):
    data = read_bytes(s, 1)
@@ -185,7 +188,6 @@ def event_game_over(s, game_state):
    end_capture(game_state)
    game_state.game_running = False
    print('game over complete')
-
 
 def event_grunt_killed_by_electrode(s, game_state):
 #   print('grunt_killed_by_electrode')
@@ -271,7 +273,7 @@ def main(argv=None):
    # Main loop!
    game_state = GameState()
    last_beat = None # send heartbeat to lazers so they don't stay on forever.
-   capture_score_game_start = False # Deal with case where game starts before intials are entered
+   # capture_score_game_start = False # Deal with case where game starts before intials are entered
    last_fog = time.time()
 
    serial_scan = time.time() - SERIAL_SCAN_INTERVAL - 1.0 # Force serial scan
@@ -296,9 +298,9 @@ def main(argv=None):
             # Check to see if we should save the last score to the scoreboard
             # before resetting state.  This can happen if the player hits start
             # before the enter initials screen is complete.
-            if capture_score_game_start:
+            if game_state.capture_score_game_start:
                save_scoreboard(None, game_state.current_score)
-            capture_score_game_start = True
+            game_state.capture_score_game_start = True
 
             start_time = time.time()
             last_beat = time.time() - BEAT_INTERVAL
@@ -310,9 +312,10 @@ def main(argv=None):
                send_command("BEAT1:" + "{0:x}\n".format(int(time.time() - start_time)), game_state)
                last_beat = time.time()
 
-            fog_interval = FOG_INTERVAL_SECONDS if game_state.wave < 10 else FOG_INTERVAL_LEVEL_10_SECONDS
+            fog_interval = FOG_INTERVAL_SECONDS if game_state.current_wave < 10 else FOG_INTERVAL_LEVEL_10_SECONDS
             if time.time() - last_fog > fog_interval:
-               send_command("Fog")
+               print("Sending fog")
+               send_command("Fog\n", game_state)
                last_fog = time.time()
       else:
          start_time = None

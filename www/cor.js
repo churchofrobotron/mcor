@@ -47,6 +47,8 @@ function pageInit() {
   } else {
     showSermon('what', false);
   }
+  document.getElementById('years-remaining').textContent = 2084 - new Date().getFullYear();
+  document.getElementById('total-tests').textContent = summaryTable.TOTAL;
 }
 
 function animatedSermonInit(scrollBody) {
@@ -285,11 +287,11 @@ sermons.ninth =
               |BRThese however, are the exceptions. Use the ninth position |1=sparingly; |use it |1=wisely.';
 
 var videos = {};
-videos.what = 'http://player.vimeo.com/video/47605115';
-videos.how = 'http://player.vimeo.com/video/47605113';
-videos.error = 'http://player.vimeo.com/video/47609850';
-videos.futility = 'http://player.vimeo.com/video/47605110';
-videos.ninth = 'http://player.vimeo.com/video/47605114';
+videos.what = '//player.vimeo.com/video/47605115';
+videos.how = '//player.vimeo.com/video/47605113';
+videos.error = '//player.vimeo.com/video/47609850';
+videos.futility = '//player.vimeo.com/video/47605110';
+videos.ninth = '//player.vimeo.com/video/47605114';
 
 function showSermon(which, autostart) {
   var autoText = autostart === true ? '?autoplay=1"' : '"';

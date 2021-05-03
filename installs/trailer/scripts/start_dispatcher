@@ -1,0 +1,7 @@
+#/bin/sh
+source location_info
+cd mcor
+while :
+do
+./mcor-dispatcher-trailer.py
+done

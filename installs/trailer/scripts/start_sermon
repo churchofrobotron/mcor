@@ -1,0 +1,4 @@
+while :
+do
+omxplayer --win "0 666 768 1360" consolidated_video.mp4
+done
