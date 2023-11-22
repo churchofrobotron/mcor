@@ -10,9 +10,9 @@ import time
 import datetime
 import math
 import shutil
-from picamera import PiCamera
 from PIL import Image
 from io import BytesIO
+from picamera import PiCamera
 
 USE_CAMERA = True
 DEV_FPGA_PORT = "/dev/ttyS0"
